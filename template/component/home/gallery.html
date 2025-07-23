@@ -1,0 +1,13 @@
+<section class="container mx-auto my-10 p-6">
+  <h2 class="text-3xl font-bold text-center mb-8">তরটসন্ট ইটেটন্টর ছতব</h2>
+  <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 lg:grid-rows-2">
+    {% for img in gallery_images %}
+      <div class="overflow-hidden rounded-lg shadow-lg group flex justify-center items-center">
+        <img src="{{ img }}" alt="Gallery Image" class="h-40 md:h-48 lg:h-56 w-auto object-cover transition-transform duration-300 group-hover:scale-105" />
+      </div>
+    {% endfor %}
+  </div>
+  <div class="flex justify-center mt-6">
+    <button class="px-6 py-2 bg-[var(--color-primary)] text-white rounded-full shadow hover:bg-[var(--color-primary)] transition font-semibold text-lg">আরও দেখুন</button>
+  </div>
+</section> 

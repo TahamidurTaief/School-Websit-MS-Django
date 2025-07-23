@@ -1,0 +1,11 @@
+{% extends 'website/base.html' %}
+
+{% block title %}Home | SchoolProject{% endblock %}
+
+{% block content %}
+{% include 'component/home/Hero.html' %}
+{% include 'component/home/history.html' %}
+{% include 'component/home/principal_message.html' %}
+{% include 'component/home/important_info.html' with dummy_data=dummy_data %}
+{% include 'component/home/gallery.html' with gallery_images=gallery_images %} 
+{% endblock %}  

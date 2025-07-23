@@ -1,0 +1,64 @@
+{% load static %}
+<!-- Hero Image Slider Section -->
+<div class="w-full mx-auto mt-0">
+  <div class="relative" x-data="{
+    active: 0,
+    images: [
+      '{% static 'img/home/slider1.jpg' %}',
+      '{% static 'img/home/slider2.jpg' %}',
+      '{% static 'img/home/slider3.jpg' %}'
+    ],
+    interval: null,
+    direction: 'right',
+    start() {
+      this.interval = setInterval(() => {
+        this.next();
+      }, 3000);
+    },
+    stop() {
+      clearInterval(this.interval);
+      this.interval = null;
+    },
+    next() {
+      this.direction = 'right';
+      this.active = (this.active + 1) % this.images.length;
+    },
+    prev() {
+      this.direction = 'left';
+      this.active = this.active === 0 ? this.images.length - 1 : this.active - 1;
+    }
+  }" x-init="start()" @mouseenter="stop()" @mouseleave="start()">
+    <!-- Slides -->
+    <div class="relative overflow-hidden w-full h-[40vw] max-h-[500px]">
+      <template x-for="(img, idx) in images" :key="idx">
+        <div
+          x-show="active === idx"
+          x-transition:enter="transition-all duration-700 ease-in-out"
+          x-transition:enter-start="opacity-0 translate-x-16"
+          x-transition:enter-end="opacity-100 translate-x-0"
+          x-transition:leave="transition-all duration-700 ease-in-out absolute inset-0"
+          x-transition:leave-start="opacity-100 translate-x-0"
+          x-transition:leave-end="opacity-0 -translate-x-16"
+          class="absolute inset-0 w-full h-full"
+        >
+          <img :src="img" alt="Slide" class="w-full h-full object-cover rounded-none shadow-lg" />
+        </div>
+      </template>
+    </div>
+    <!-- Prev/Next Buttons -->
+    <button @click="prev()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 rounded-full p-2 shadow-md focus:outline-none z-10">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+    </button>
+    <button @click="next()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 rounded-full p-2 shadow-md focus:outline-none z-10">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+    </button>
+    <!-- Dots (inside hero, overlay bottom center) -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex justify-center space-x-2 bg-white/60 rounded-full px-4 py-2 shadow-md z-10">
+      <template x-for="(img, idx) in images" :key="idx">
+        <button @click="active = idx" :class="{'bg-blue-600': active === idx, 'bg-gray-300': active !== idx}" class="w-3 h-3 rounded-full transition-colors duration-300"></button>
+      </template>
+    </div>
+  </div>
+</div>
+<!-- Alpine.js for slider logic -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> 
