@@ -1,0 +1,28 @@
+{% load static %}
+<section class="container mx-auto my-10 p-6 border border-gray-300 rounded-lg bg-white shadow-lg hover:shadow-2xl transition-shadow duration-500 group overflow-hidden">
+  <div class="flex flex-col items-center justify-center">
+    <h2 class="text-3xl md:text-4xl font-bold text-center text-[var(--color-primary)] mb-2 tracking-wider">{{ approval.title }}</h2>
+    <div class="h-1 w-16 bg-gradient-to-r from-[var(--color-primary)] to-purple-500 rounded-full transform transition-all duration-500 group-hover:w-40 group-hover:h-2 mb-8"></div>
+    
+    <div class="prose prose-lg max-w-4xl mx-auto text-gray-700 text-lg leading-relaxed mb-8">
+      <p class="text-justify">{{ approval.content }}</p>
+    </div>
+    
+    <h3 class="text-2xl font-semibold text-gray-800 mb-4">আমাদের শাখাসমূহ</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mx-auto">
+      {% for branch in approval.branches %}
+      <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200">
+        <h4 class="text-xl font-bold text-[var(--color-primary)] mb-2">{{ branch.name }}</h4>
+        <div class="flex items-center mb-2">
+          <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+          <span>{{ branch.location }}</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
+          <span>প্রতিষ্ঠাকাল: {{ branch.established }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

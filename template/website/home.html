@@ -5,7 +5,7 @@
 {% block content %}
 {% include 'component/home/Hero.html' %}
 {% include 'component/home/history.html' %}
-{% include 'component/home/principal_message.html' %}
+{% include 'component/common/principal_message.html' with principal_message=principal_message %}
 {% include 'component/home/important_info.html' with dummy_data=dummy_data %}
 {% include 'component/home/gallery.html' with gallery_images=gallery_images %} 
-{% endblock %}  
+{% endblock %}
