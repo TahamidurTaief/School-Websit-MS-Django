@@ -3,3 +3,5 @@ Django==5.2.4
 django-browser-reload==1.18.0
 sqlparse==0.5.3
 tailwindcss==0.0.1
+django-import-export==3.2.0
+Pillow==10.0.0

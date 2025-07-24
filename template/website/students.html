@@ -1,0 +1,16 @@
+{% extends 'website/base.html' %}
+
+{% block title %}শিক্ষার্থীদের তথ্য | SchoolProject{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-gray-50 to-white py-8">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-center text-[var(--color-primary)] mb-8">
+            শিক্ষার্থীদের তথ্য
+        </h1>
+
+        {% include 'component/students/class_filter.html' %}
+        {% include 'component/students/department_filter.html' %}
+    </div>
+</div>
+{% endblock %}

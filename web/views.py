@@ -1,5 +1,7 @@
 from django.shortcuts import render
 import json
+from .models import Class, Department, Student
+
 
 def home(request):
     dummy_data = {
@@ -129,6 +131,103 @@ def administration(request):
     }
     
     return render(request, 'website/administration.html', administration_data)
+
+def generate_students(count, section, start_id=1):
+    """Generate dummy student data with improved structure and error handling"""
+    try:
+        students = []
+        for i in range(count):
+            student_id = start_id + i
+            students.append({
+                'id': str(student_id),
+                'name': f'শিক্ষার্থী {student_id}',
+                'roll': f'{1001 + i}',
+                'registration': f'202{5000 + i}',
+                'section': section,
+                'imageId': f'{(i % 10) + 1}'  # Cycle through existing administration images
+            })
+        return students
+    except Exception as e:
+        print(f"Error generating students: {str(e)}")
+        return []
+
+def students(request):
+    """Handle student information page"""
+
+    # Get all classes and departments
+    classes = Class.objects.all().order_by('numeric_value')
+    departments = Department.objects.all()
+
+    # Prepare classes data for template
+    classes_data = [
+        {
+            'id': str(cls.numeric_value),
+            'name': cls.name
+        } for cls in classes
+    ]
+
+    # Prepare departments data for template
+    departments_data = [
+        {
+            'id': dept.slug,
+            'name': dept.name,
+            'icon': dept.icon
+        } for dept in departments
+    ]
+
+    template_context = {
+        'classes': classes_data,
+        'departments': departments_data
+    }
+
+    try:
+        # Get students by class
+        students_by_class = {}
+        for cls in classes:
+            students = Student.objects.filter(class_name=cls)
+            students_data = [
+                {
+                    'id': str(student.id),
+                    'name': student.name,
+                    'roll': student.roll_number,
+                    'registration': student.registration_number,
+                    'section': student.class_name.name,
+                    'image': student.photo.url if student.photo else None,
+                    'guardian_name': student.guardian_name,
+                    'guardian_phone': student.guardian_phone,
+                    'address': student.address
+                } for student in students
+            ]
+            students_by_class[str(cls.numeric_value)] = students_data
+
+        # Get students by department
+        students_by_dept = {}
+        for dept in departments:
+            students = Student.objects.filter(department=dept)
+            students_data = [
+                {
+                    'id': str(student.id),
+                    'name': student.name,
+                    'roll': student.roll_number,
+                    'registration': student.registration_number,
+                    'section': student.class_name.name,
+                    'image': student.photo.url if student.photo else None,
+                    'guardian_name': student.guardian_name,
+                    'guardian_phone': student.guardian_phone,
+                    'address': student.address
+                } for student in students
+            ]
+            students_by_dept[dept.slug] = students_data
+
+        template_context['class_students'] = json.dumps(students_by_class, ensure_ascii=False)
+        template_context['dept_students'] = json.dumps(students_by_dept, ensure_ascii=False)
+
+    except Exception as e:
+        print(f"Error fetching student data: {str(e)}")
+        template_context['class_students'] = '{}'
+        template_context['dept_students'] = '{}'
+    
+    return render(request, 'website/students.html', template_context)
 
 def about(request):
     # Sample about us content
