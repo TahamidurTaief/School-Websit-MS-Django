@@ -41,16 +41,16 @@ def home(request):
     dummy_data_json = json.dumps(dummy_data, ensure_ascii=False)
 
     gallery_images = [
-        '/static/img/home/institute.jpg',
-        '/static/img/home/principal.jpg',
-        '/static/img/home/slider1.jpg',
-        '/static/img/home/slider2.jpg',
-        '/static/img/home/slider3.jpg',
-        '/static/img/home/institute.jpg',
-        '/static/img/home/principal.jpg',
-        '/static/img/home/slider1.jpg',
-        '/static/img/home/slider2.jpg',
-        '/static/img/home/slider3.jpg',
+        'img/home/institute.jpg',
+        'img/home/principal.jpg',
+        'img/home/slider1.jpg',
+        'img/home/slider2.jpg',
+        'img/home/slider3.jpg',
+        'img/home/institute.jpg',
+        'img/home/principal.jpg',
+        'img/home/slider1.jpg',
+        'img/home/slider2.jpg',
+        'img/home/slider3.jpg',
     ]
     
     # Principal message data for the home page
@@ -68,6 +68,67 @@ def home(request):
     })
 
 
+
+def administration(request):
+    # Dummy data - will be replaced with database queries
+    administration_data = {
+        'special_officers': [
+            {
+                'name': 'জনাব আব্দুল করিম',
+                'position': 'প্রধান অভিযোগ গ্রহণকারী কর্মকর্তা',
+                'image': 'img/administration/1.jpeg',
+                'social_links': [
+                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
+                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
+                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
+                ]
+            },
+            {
+                'name': 'জনাব রফিকুল ইসলাম',
+                'position': 'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
+                'image': 'img/administration/2.jpeg',
+                'social_links': [
+                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
+                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
+                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
+                ]
+            },
+            {
+                'name': 'জনাব আমিনুল হক',
+                'position': 'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
+                'image': 'img/administration/3.jpeg',
+                'social_links': [
+                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
+                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
+                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
+                ]
+            },
+            {
+                'name': 'জনাবা সালমা বেগম',
+                'position': 'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
+                'image': 'img/administration/4.jpeg',
+                'social_links': [
+                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
+                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
+                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
+                ]
+            }
+        ],
+        'teachers': [
+            {'name': 'ড. মোহাম্মদ আলী', 'position': 'প্রধান শিক্ষক', 'image': 'img/administration/10.jpeg'},
+            {'name': 'জনাব রহিম উদ্দিন', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/9.jpg'},
+            {'name': 'জনাবা ফারজানা আক্তার', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/8.jpeg'},
+            {'name': 'জনাব কামাল হোসেন', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/7.jpeg'},
+            {'name': 'জনাবা নাসরিন সুলতানা', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/6.jpeg'},
+            {'name': 'জনাব মাহমুদুল হাসান', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/5.jpeg'},
+            {'name': 'জনাবা সাবরিনা হক', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/4.jpeg'},
+            {'name': 'জনাব তৌহিদুল ইসলাম', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/3.jpeg'},
+            {'name': 'জনাবা রুমানা আক্তার', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/2.jpeg'},
+            {'name': 'জনাব আরিফুল ইসলাম', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/1.jpeg'}
+        ]
+    }
+    
+    return render(request, 'website/administration.html', administration_data)
 
 def about(request):
     # Sample about us content

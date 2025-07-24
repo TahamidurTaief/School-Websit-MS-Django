@@ -1,0 +1,28 @@
+{% load static %}
+<section class="container mx-auto my-16">
+    <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-[var(--color-primary)] mb-2">শিক্ষক বৃন্দ</h2>
+        <div class="h-1 w-24 mx-auto bg-gradient-to-r from-green-600 to-blue-600 rounded-full transform transition-all duration-500 hover:w-32"></div>
+        <p class="mt-4 text-gray-600">আমাদের অনুপ্রেরণার উৎস</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" x-data="{ activeCard: null }">
+        {% for teacher in teachers %}
+        <div class="relative group"
+             @mouseenter="activeCard = {{ forloop.counter }}" 
+             @mouseleave="activeCard = null">
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
+                <div class="relative overflow-hidden">
+                    <img src="{% static teacher.image %}" alt="{{ teacher.name }}" 
+                         class="w-full h-72 object-cover group-hover:scale-110 duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 opacity-100 duration-300"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 text-white duration-300">
+                        <h3 class="text-lg font-bold mb-0">{{ teacher.name }}</h3>
+                        <p class="text-sm text-gray-200">{{ teacher.position }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
