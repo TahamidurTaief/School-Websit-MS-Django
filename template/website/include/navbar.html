@@ -170,15 +170,21 @@
         
         <li>
           <a
-            href="#"
+            href="{% url 'notice_list' %}"
             class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
+            data-turbo-frame="main-content"
+            data-turbo="true"
+            data-turbo-action="advance"
             >নোটিশ</a
           >
         </li>
         <li>
           <a
-            href="#"
+            href="{% url 'result_list' %}"
             class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
+            data-turbo-frame="main-content"
+            data-turbo="true"
+            data-turbo-action="advance"
             >ফলাফল</a
           >
         </li>
@@ -318,15 +324,21 @@
               </li>
               <li>
                 <a
-                  href="#"
+                  href="{% url 'notice_list' %}"
                   class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
+                  data-turbo-frame="main-content"
+                  data-turbo="true"
+                  data-turbo-action="advance"
                   >নোটিশ</a
                 >
               </li>
               <li>
                 <a
-                  href="#"
+                  href="{% url 'result_list' %}"
                   class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
+                  data-turbo-frame="main-content"
+                  data-turbo="true"
+                  data-turbo-action="advance"
                   >ফলাফল</a
                 >
               </li>

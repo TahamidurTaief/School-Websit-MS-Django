@@ -108,3 +108,44 @@ class BookAdmin(ImportExportModelAdmin):
     list_filter = ('is_active', 'class_name', 'department')
     search_fields = ('title',)
     ordering = ('-updated_at',)
+
+
+class ResultResource(resources.ModelResource):
+    class_name = fields.Field(
+        column_name='class_name',
+        attribute='class_name',
+        widget=ForeignKeyWidget(Class, 'name_en')
+    )
+    department = fields.Field(
+        column_name='department',
+        attribute='department',
+        widget=ForeignKeyWidget(Department, 'name_en')
+    )
+
+    class Meta:
+        model = Result
+        fields = ('title', 'class_name', 'department', 'is_active')
+
+@admin.register(Result)
+class ResultAdmin(ImportExportModelAdmin):
+    resource_class = ResultResource
+    list_display = ('title', 'class_name', 'department', 'is_active', 'created_at')
+    list_filter = ('class_name', 'department', 'is_active')
+    search_fields = ('title',)
+    date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+
+
+class VideoResource(resources.ModelResource):
+    class Meta:
+        model = Video
+        fields = ('title', 'youtube_id', 'description', 'is_active')
+
+@admin.register(Video)
+class VideoAdmin(ImportExportModelAdmin):
+    resource_class = VideoResource
+    list_display = ('title', 'youtube_id', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'youtube_id', 'description')
+    date_hierarchy = 'created_at'
+    ordering = ('-created_at',)

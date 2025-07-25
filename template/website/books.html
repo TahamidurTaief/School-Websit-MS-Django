@@ -35,10 +35,6 @@
                 const response = await fetch(url);
                 const data = await response.json();
                 this.books = data.books;
-                console.log('Fetched books:', this.books);
-                this.books.forEach(book => {
-                    console.log(`Book ID: ${book.id}, File URL: ${book.file_url}, Download URL: ${book.download_url}`);
-                });
             },
             
             init() {

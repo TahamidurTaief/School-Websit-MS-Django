@@ -13,5 +13,11 @@ urlpatterns = [
     path('filter-routines/', filter_routines, name='filter_routines'),
     path('download-routine/<int:pk>/', download_routine, name='download_routine'),
     path('download-book/<int:pk>/', download_book, name='download_book'),
-
+    path('results/', result_list, name='result_list'),
+    path('filter-results/', filter_results, name='filter_results'),
+    path('download-result/<int:pk>/', download_result, name='download_result'),
+    path('view-result-pdf/<int:pk>/', view_result_pdf, name='view_result_pdf'),
+    path('gallery/', gallery_list, name='gallery_list'),
+    path('filter-gallery-images/', filter_gallery_images, name='filter_gallery_images'),
+    path('filter-gallery-videos/', filter_gallery_videos, name='filter_gallery_videos'),
 ]

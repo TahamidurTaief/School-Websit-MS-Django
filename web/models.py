@@ -194,3 +194,35 @@ class Book(models.Model):
     
     def __str__(self):
         return self.title
+
+
+class Result(TimeStampModel):
+    title = models.CharField(max_length=255)
+    file = models.FileField(
+        upload_to='results/',
+        validators=[FileExtensionValidator(['pdf'])]
+    )
+    class_name = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True, blank=True)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name_plural = "Results"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class Video(TimeStampModel):
+    title = models.CharField(max_length=255)
+    youtube_id = models.CharField(max_length=50, help_text="The YouTube video ID (e.g., dQw4w9WgXcQ)")
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name_plural = "Videos"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title

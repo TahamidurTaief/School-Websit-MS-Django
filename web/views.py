@@ -1,7 +1,8 @@
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 from django.shortcuts import render
 import json
 from .models import *
+from urllib.parse import quote
 
 
 def home(request):
@@ -356,15 +357,129 @@ def filter_books(request):
             'class_name': book.class_name.name if book.class_name else '',
             'department': book.department.name if book.department else '',
             'updated_at': book.updated_at.strftime('%d %b %Y'),
-            'file_url': book.file.url,
-            'download_url': f'/download-book/{book.id}/'
+            'file_url': request.build_absolute_uri(book.file.url),
+            'download_url': request.build_absolute_uri(f'/download-book/{book.id}/')
         })
         
     return JsonResponse({'books': books_data})
 
 
 def download_book(request, pk):
-    book = Book.objects.get(pk=pk)
-    response = FileResponse(book.file.open(), as_attachment=True, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{book.file.name}"'
+    try:
+        book = Book.objects.get(pk=pk)
+        file_path = book.file.path
+        # Ensure the file exists before attempting to open
+        if not os.path.exists(file_path):
+            return HttpResponseNotFound('The requested file was not found.')
+
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{quote(book.file.name)}"'
+        return response
+    except Book.DoesNotExist:
+        return HttpResponseNotFound('Book not found.')
+    except Exception as e:
+        # Log the exception for debugging
+        print(f"Error downloading book: {e}")
+        return HttpResponseServerError('An error occurred during download.')
+
+def result_list(request):
+    classes = Class.objects.all().order_by('numeric_value')
+    departments = Department.objects.all()
+
+    context = {
+        'classes': classes,
+        'departments': departments,
+    }
+    return render(request, 'website/results.html', context)
+
+def filter_results(request):
+    class_id = request.GET.get('class_id')
+    dept_slug = request.GET.get('dept_slug')
+
+    results = Result.objects.filter(is_active=True)
+
+    if class_id and class_id.isdigit():
+        results = results.filter(class_name_id=int(class_id))
+    elif dept_slug:
+        results = results.filter(department__slug=dept_slug)
+
+    results = results.order_by('-created_at')
+
+    results_data = []
+    for result in results:
+        results_data.append({
+            'id': result.id,
+            'title': result.title,
+            'class_name': result.class_name.name if result.class_name else '',
+            'department': result.department.name if result.department else '',
+            'updated_at': result.updated_at.strftime('%d %b %Y'),
+            'file_url': result.file.url,
+            'download_url': f'/download-result/{result.id}/',
+        })
+
+    return JsonResponse({'results': results_data})
+
+def download_result(request, pk):
+    try:
+        result = Result.objects.get(pk=pk)
+        file_path = result.file.path
+        if not os.path.exists(file_path):
+            return HttpResponseNotFound('The requested file was not found.')
+
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{quote(result.file.name)}"'
+        return response
+    except Result.DoesNotExist:
+        return HttpResponseNotFound('Result not found.')
+    except Exception as e:
+        print(f"Error downloading result: {e}")
+        return HttpResponseServerError('An error occurred during download.')
+
+def view_result_pdf(request, pk):
+    result = Result.objects.get(pk=pk)
+    response = FileResponse(result.file.open(), content_type='application/pdf')
     return response
+
+def gallery_list(request):
+    context = {
+        'image_categories': Gallery.CATEGORIES,
+    }
+    return render(request, 'website/gallery.html', context)
+
+def filter_gallery_images(request):
+    category = request.GET.get('category', 'all')
+    
+    images = Gallery.objects.filter(is_slider=False) # Exclude sliders from main gallery
+
+    if category != 'all':
+        images = images.filter(category=category)
+
+    images = images.order_by('-created_at')
+
+    images_data = []
+    for image in images:
+        image_url = ''
+        if image.image:
+            image_url = request.build_absolute_uri(image.image.url)
+        
+        images_data.append({
+            'id': image.id,
+            'title': image.title,
+            'image_url': image_url,
+            'description': image.description,
+            'category': image.get_category_display(),
+        })
+    return JsonResponse({'images': images_data})
+
+def filter_gallery_videos(request):
+    videos = Video.objects.filter(is_active=True).order_by('-created_at')
+
+    videos_data = []
+    for video in videos:
+        videos_data.append({
+            'id': video.id,
+            'title': video.title,
+            'youtube_id': video.youtube_id,
+            'description': video.description,
+        })
+    return JsonResponse({'videos': videos_data})
