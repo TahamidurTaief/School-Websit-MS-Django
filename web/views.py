@@ -268,6 +268,8 @@ def routine(request):
     return render(request, 'website/routine.html', context)
 
 
+from django.http import JsonResponse
+
 def filter_routines(request):
     routine_type = request.GET.get('type', 'class')
     class_id = request.GET.get('class_id')
@@ -285,9 +287,20 @@ def filter_routines(request):
     
     routines = routines.order_by('-updated_at')
     
-    return render(request, 'component/routine/routine_list.html', {
-        'routines': routines
-    })
+    # Prepare data for JSON response
+    routines_data = []
+    for routine in routines:
+        routines_data.append({
+            'id': routine.id,
+            'title': routine.title,
+            'class_name': routine.class_name.name if routine.class_name else '',
+            'department': routine.department.name if routine.department else '',
+            'updated_at': routine.updated_at.strftime('%d %b %Y'),
+            'file_url': routine.file.url,
+            'download_url': f'/download-routine/{routine.id}/'
+        })
+        
+    return JsonResponse({'routines': routines_data})
 
 
 
@@ -327,13 +340,31 @@ def filter_books(request):
         is_active=True
     ).select_related('class_name', 'department')
     
-    if class_id:
-        books = books.filter(class_name_id=class_id)
+    if class_id and class_id.isdigit():
+        books = books.filter(class_name_id=int(class_id))
     elif dept_slug:
         books = books.filter(department__slug=dept_slug)
     
     books = books.order_by('-updated_at')
     
-    return render(request, 'component/routine/book_list.html', {
-        'books': books
-    })
+    # Prepare data for JSON response
+    books_data = []
+    for book in books:
+        books_data.append({
+            'id': book.id,
+            'title': book.title,
+            'class_name': book.class_name.name if book.class_name else '',
+            'department': book.department.name if book.department else '',
+            'updated_at': book.updated_at.strftime('%d %b %Y'),
+            'file_url': book.file.url,
+            'download_url': f'/download-book/{book.id}/'
+        })
+        
+    return JsonResponse({'books': books_data})
+
+
+def download_book(request, pk):
+    book = Book.objects.get(pk=pk)
+    response = FileResponse(book.file.open(), as_attachment=True, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{book.file.name}"'
+    return response

@@ -15,6 +15,7 @@
             activeDept: null,
             isModalOpen: false,
             pdfUrl: '',
+            books: [],
             
             openModal(url) {
                 this.pdfUrl = url;
@@ -32,7 +33,12 @@
                 }
                 
                 const response = await fetch(url);
-                document.getElementById('book-list-container').innerHTML = await response.text();
+                const data = await response.json();
+                this.books = data.books;
+                console.log('Fetched books:', this.books);
+                this.books.forEach(book => {
+                    console.log(`Book ID: ${book.id}, File URL: ${book.file_url}, Download URL: ${book.download_url}`);
+                });
             },
             
             init() {
@@ -88,7 +94,53 @@
 
             <!-- Book List Container -->
             <div id="book-list-container">
-                {% include 'component/routine/book_list.html' with books=initial_books %}
+                <div class="overflow-hidden rounded-lg shadow-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gradient-to-r from-[var(--color-primary)] to-purple-600">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">ক্রমিক</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">শিরোনাম</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">আপডেট</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">একশন</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="(book, index) in books" :key="book.id">
+                                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="index + 1"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900" x-text="book.title"></div>
+                                        <div class="text-sm text-gray-500">
+                                            <span x-text="book.class_name"></span>
+                                            <span x-text="book.department"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="book.updated_at"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-3">
+                                            <button @click="openModal(book.file_url)"
+                                                    class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-eye"></i> দেখুন
+                                            </button>
+                                            <a :href="book.download_url"
+                                               class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-download"></i> ডাউনলোড
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="books.length === 0">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        <i class="fas fa-file-alt text-3xl mb-2 text-gray-400"></i>
+                                        <p>কোন বই পাওয়া যায়নি</p>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

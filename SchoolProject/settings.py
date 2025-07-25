@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'import_export',
     'web',
     'django_browser_reload',
+    'notice',
 ]
 
 MIDDLEWARE = [
