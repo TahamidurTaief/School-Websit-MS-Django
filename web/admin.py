@@ -2,10 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
-from .models import (
-    SchoolInfo, Department, Class, Teacher, Student,
-    Notice, Gallery, PrincipalMessage
-)
+from .models import *
 
 # Resource classes for import/export
 class StudentResource(resources.ModelResource):
@@ -88,3 +85,26 @@ class PrincipalMessageAdmin(ImportExportModelAdmin):
     list_display = ('name', 'is_active', 'created_at')
     list_filter = ('is_active',)
     search_fields = ('name', 'message')
+
+
+
+@admin.register(RoutineType)
+class RoutineTypeAdmin(ImportExportModelAdmin):
+    list_display = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(Routine)
+class RoutineAdmin(ImportExportModelAdmin):
+    list_display = ('title', 'category', 'class_name', 'department', 'is_active', 'updated_at')
+    list_filter = ('category', 'is_active', 'class_name', 'department')
+    search_fields = ('title',)
+    ordering = ('-updated_at',)
+
+
+@admin.register(Book)
+class BookAdmin(ImportExportModelAdmin):
+    list_display = ('title', 'class_name', 'department', 'is_active', 'updated_at')
+    list_filter = ('is_active', 'class_name', 'department')
+    search_fields = ('title',)
+    ordering = ('-updated_at',)

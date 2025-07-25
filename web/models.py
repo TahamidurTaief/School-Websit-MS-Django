@@ -140,3 +140,57 @@ class PrincipalMessage(TimeStampModel):
     
     def __str__(self):
         return f"Principal Message - {self.name}"
+
+
+
+
+class RoutineType(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.name
+
+class Routine(models.Model):
+    ROUTINE_CATEGORIES = (
+        ('class', 'Class Routine'),
+        ('exam', 'Exam Routine'),
+    )
+    
+    title = models.CharField(max_length=200)
+    category = models.CharField(max_length=20, choices=ROUTINE_CATEGORIES)
+    routine_type = models.ForeignKey(RoutineType, on_delete=models.SET_NULL, null=True, blank=True)
+    class_name = models.ForeignKey('Class', on_delete=models.SET_NULL, null=True, blank=True)
+    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to='routines/')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+    
+    def __str__(self):
+        return f"{self.get_category_display()} - {self.title}"
+
+
+
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    class_name = models.ForeignKey('Class', on_delete=models.SET_NULL, null=True, blank=True)
+    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to='books/')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+    
+    def __str__(self):
+        return self.title

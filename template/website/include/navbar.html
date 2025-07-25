@@ -137,6 +137,29 @@
             শিক্ষার্থীদের তথ্য
           </a>
         </li>
+        <li class="relative group">
+                <a
+                  href="#"
+                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200 flex items-center gap-1"
+                >
+                  তথ্য
+                  <i class="fas fa-chevron-down text-xs ml-1"></i>
+                </a>
+                <ul
+                  class="absolute top-10 mt-1 bg-gray-100 text-gray-900 rounded shadow-lg hidden group-hover:block min-w-[120px] z-10"
+                >
+                  <li>
+                    <a href="{% url 'routine' %}" turbo-data="true" data-turbo-action="advance" data-turbo-frame="main-content" class="block px-4 py-2 hover:bg-gray-200"
+                      >রুটিন</a
+                    >
+                  </li>
+                  <li>
+                    <a href="{% url 'books' %}" turbo-data="true" data-turbo-action="advance" data-turbo-frame="main-content" class="block px-4 py-2 hover:bg-gray-200"
+                      >বইসমূহ</a
+                    >
+                  </li>
+                </ul>
+              </li>
         <li>
           <a
             href="#"
@@ -144,13 +167,7 @@
             >ভর্তি</a
           >
         </li>
-        <li>
-          <a
-            href="#"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            >রুটিন</a
-          >
-        </li>
+        
         <li>
           <a
             href="#"
@@ -243,16 +260,23 @@
               </li>
               <li>
                 <a
-                  href="#"
+                  href="{% url 'about' %}"
                   class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
                   >আমাদের সম্পর্কে</a
                 >
               </li>
               <li>
                 <a
-                  href="#"
+                  href="{% url 'administration' %}"
                   class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
                   >প্রশাসন</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'students' %}"
+                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
+                  >শিক্ষার্থীদের তথ্য</a
                 >
               </li>
               <li class="relative group">
@@ -260,20 +284,20 @@
                   href="#"
                   class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200 flex items-center gap-1"
                 >
-                  শিক্ষার্থীদের তথ্য
+                  তথ্য
                   <i class="fas fa-chevron-down text-xs ml-1"></i>
                 </a>
                 <ul
-                  class="ml-4 mt-1 bg-gray-100 text-gray-900 rounded shadow-lg hidden group-hover:block min-w-[120px] z-10"
+                  class="absolute top-10 mt-1 bg-gray-100 text-gray-900 rounded shadow-lg hidden group-hover:block min-w-[120px] z-10"
                 >
                   <li>
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-200"
-                      >তথ্য ১</a
+                    <a href="{% url 'routine' %}" class="block px-4 py-2 hover:bg-gray-200"
+                      >রুটিন</a
                     >
                   </li>
                   <li>
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-200"
-                      >তথ্য ২</a
+                    <a href="{% url 'routine' %}" class="block px-4 py-2 hover:bg-gray-200"
+                      >বইসমূহ</a
                     >
                   </li>
                 </ul>

@@ -1,0 +1,127 @@
+{% extends 'website/base.html' %}
+
+{% block title %}পাঠ্যক্রম | SchoolProject{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-gray-50 to-white py-8">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-center text-[var(--color-primary)] mb-8">
+            পাঠ্যক্রম বইসমূহ
+        </h1>
+
+        <div x-data="{
+            activeTab: 'class',
+            activeClass: null,
+            activeDept: null,
+            isModalOpen: false,
+            pdfUrl: '',
+            
+            openModal(url) {
+                this.pdfUrl = url;
+                this.isModalOpen = true;
+            },
+            
+            async filterBooks() {
+                let url = '{% url "filter_books" %}?';
+                
+                if (this.activeTab === 'class' && this.activeClass) {
+                    url += 'class_id=' + this.activeClass;
+                } 
+                else if (this.activeTab === 'dept' && this.activeDept) {
+                    url += 'dept_slug=' + this.activeDept;
+                }
+                
+                const response = await fetch(url);
+                document.getElementById('book-list-container').innerHTML = await response.text();
+            },
+            
+            init() {
+                this.filterBooks();
+            }
+        }" x-init="init()">
+            <!-- Filter Selection -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex rounded-md shadow-sm">
+                    <button @click="activeTab = 'class'; activeDept = null; filterBooks();" 
+                            :class="activeTab === 'class' ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                            class="px-6 py-2 rounded-l-lg border border-gray-300 font-medium">
+                        <i class="fas fa-graduation-cap mr-2"></i> শ্রেণি অনুযায়ী
+                    </button>
+                    <button @click="activeTab = 'dept'; activeClass = null; filterBooks();" 
+                            :class="activeTab === 'dept' ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                            class="px-6 py-2 rounded-r-lg border border-gray-300 font-medium">
+                        <i class="fas fa-building mr-2"></i> বিভাগ অনুযায়ী
+                    </button>
+                </div>
+            </div>
+
+            <!-- Class/Department Filters -->
+            <div class="mb-8">
+                <!-- Class Filter -->
+                <div x-show="activeTab === 'class'" x-transition class="text-center">
+                    <h3 class="text-xl font-semibold mb-3">শ্রেণি নির্বাচন করুন</h3>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        {% for class in classes %}
+                        <button @click="activeClass = {{ class.id }}; filterBooks();"
+                                :class="activeClass === {{ class.id }} ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                class="px-4 py-1 rounded-full border border-gray-300 transition-colors duration-200">
+                            {{ class.name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Department Filter -->
+                <div x-show="activeTab === 'dept'" x-transition class="text-center">
+                    <h3 class="text-xl font-semibold mb-3">বিভাগ নির্বাচন করুন</h3>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        {% for dept in departments %}
+                        <button @click="activeDept = '{{ dept.slug }}'; filterBooks();"
+                                :class="activeDept === '{{ dept.slug }}' ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                class="px-4 py-1 rounded-full border border-gray-300 transition-colors duration-200">
+                            {{ dept.name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book List Container -->
+            <div id="book-list-container">
+                {% include 'component/routine/book_list.html' with books=initial_books %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PDF Viewer Modal (same as in routine.html) -->
+<div x-show="isModalOpen" 
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+     x-cloak
+     @click.away="isModalOpen = false"
+     @keydown.escape.window="isModalOpen = false">
+    <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
+         @click.stop>
+        <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b">
+            <h3 class="text-lg font-medium">PDF Viewer</h3>
+            <button @click="isModalOpen = false" 
+                    class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="h-[80vh]">
+            <iframe :src="pdfUrl" class="w-full h-full" frameborder="0"></iframe>
+        </div>
+    </div>
+</div>
+
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+{% endblock %}

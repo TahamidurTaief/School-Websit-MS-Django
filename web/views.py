@@ -1,6 +1,7 @@
+from django.http import FileResponse
 from django.shortcuts import render
 import json
-from .models import Class, Department, Student
+from .models import *
 
 
 def home(request):
@@ -132,102 +133,54 @@ def administration(request):
     
     return render(request, 'website/administration.html', administration_data)
 
-def generate_students(count, section, start_id=1):
-    """Generate dummy student data with improved structure and error handling"""
-    try:
-        students = []
-        for i in range(count):
-            student_id = start_id + i
-            students.append({
-                'id': str(student_id),
-                'name': f'শিক্ষার্থী {student_id}',
-                'roll': f'{1001 + i}',
-                'registration': f'202{5000 + i}',
-                'section': section,
-                'imageId': f'{(i % 10) + 1}'  # Cycle through existing administration images
-            })
-        return students
-    except Exception as e:
-        print(f"Error generating students: {str(e)}")
-        return []
+
+
 
 def students(request):
-    """Handle student information page"""
-
-    # Get all classes and departments
     classes = Class.objects.all().order_by('numeric_value')
     departments = Department.objects.all()
-
-    # Prepare classes data for template
-    classes_data = [
-        {
-            'id': str(cls.numeric_value),
-            'name': cls.name
-        } for cls in classes
-    ]
-
-    # Prepare departments data for template
-    departments_data = [
-        {
-            'id': dept.slug,
-            'name': dept.name,
-            'icon': dept.icon
-        } for dept in departments
-    ]
-
-    template_context = {
-        'classes': classes_data,
-        'departments': departments_data
-    }
-
-    try:
-        # Get students by class
-        students_by_class = {}
-        for cls in classes:
-            students = Student.objects.filter(class_name=cls)
-            students_data = [
-                {
-                    'id': str(student.id),
-                    'name': student.name,
-                    'roll': student.roll_number,
-                    'registration': student.registration_number,
-                    'section': student.class_name.name,
-                    'image': student.photo.url if student.photo else None,
-                    'guardian_name': student.guardian_name,
-                    'guardian_phone': student.guardian_phone,
-                    'address': student.address
-                } for student in students
-            ]
-            students_by_class[str(cls.numeric_value)] = students_data
-
-        # Get students by department
-        students_by_dept = {}
-        for dept in departments:
-            students = Student.objects.filter(department=dept)
-            students_data = [
-                {
-                    'id': str(student.id),
-                    'name': student.name,
-                    'roll': student.roll_number,
-                    'registration': student.registration_number,
-                    'section': student.class_name.name,
-                    'image': student.photo.url if student.photo else None,
-                    'guardian_name': student.guardian_name,
-                    'guardian_phone': student.guardian_phone,
-                    'address': student.address
-                } for student in students
-            ]
-            students_by_dept[dept.slug] = students_data
-
-        template_context['class_students'] = json.dumps(students_by_class, ensure_ascii=False)
-        template_context['dept_students'] = json.dumps(students_by_dept, ensure_ascii=False)
-
-    except Exception as e:
-        print(f"Error fetching student data: {str(e)}")
-        template_context['class_students'] = '{}'
-        template_context['dept_students'] = '{}'
     
-    return render(request, 'website/students.html', template_context)
+    initial_class = classes.first()
+    students = Student.objects.filter(class_name=initial_class).select_related('class_name', 'department') if initial_class else []
+    
+    context = {
+        'classes': classes,
+        'departments': departments,
+        'initial_students': students,
+        'initial_class_id': initial_class.id if initial_class else None,
+    }
+    return render(request, 'website/students.html', context)
+
+def filter_students(request):
+    class_id = request.GET.get('class_id')
+    dept_slug = request.GET.get('dept_slug')
+    
+    students = Student.objects.all().select_related('class_name', 'department')
+    
+    if class_id:
+        students = students.filter(class_name_id=class_id)
+    elif dept_slug:
+        students = students.filter(department__slug=dept_slug)
+    
+    students_data = [{
+        'id': student.id,
+        'name': student.name,
+        'roll': student.roll_number,
+        'registration': student.registration_number,
+        'class_name': student.class_name.name,
+        'department': student.department.name if student.department else '',
+        'image': student.photo.url if student.photo else f'/static/img/administration/{student.id % 10 + 1}.jpeg',
+        'guardian_name': student.guardian_name,
+        'guardian_phone': student.guardian_phone,
+        'address': student.address,
+    } for student in students]
+    
+    return render(request, 'component/students/student_list.html', {'students': students_data})
+
+
+
+
+
 
 def about(request):
     # Sample about us content
@@ -290,4 +243,97 @@ def about(request):
     
     return render(request, 'website/about.html', {
         'about_content': about_content
+    })
+
+
+
+
+
+
+def routine(request):
+    classes = Class.objects.all().order_by('numeric_value')
+    departments = Department.objects.all()
+    
+    # Get initial routines (class routines by default)
+    initial_routines = Routine.objects.filter(
+        category='class', 
+        is_active=True
+    ).select_related('class_name', 'department')
+    
+    context = {
+        'classes': classes,
+        'departments': departments,
+        'initial_routines': initial_routines,
+    }
+    return render(request, 'website/routine.html', context)
+
+
+def filter_routines(request):
+    routine_type = request.GET.get('type', 'class')
+    class_id = request.GET.get('class_id')
+    dept_slug = request.GET.get('dept_slug')
+    
+    routines = Routine.objects.filter(
+        category=routine_type,
+        is_active=True
+    ).select_related('class_name', 'department')
+    
+    if class_id and class_id.isdigit():
+        routines = routines.filter(class_name_id=int(class_id))
+    elif dept_slug:
+        routines = routines.filter(department__slug=dept_slug)
+    
+    routines = routines.order_by('-updated_at')
+    
+    return render(request, 'component/routine/routine_list.html', {
+        'routines': routines
+    })
+
+
+
+
+def download_routine(request, pk):
+    routine = Routine.objects.get(pk=pk)
+    response = FileResponse(routine.file.open(), as_attachment=True)
+    response['Content-Disposition'] = f'attachment; filename="{routine.file.name}"'
+    return response
+
+
+
+def books(request):
+    classes = Class.objects.all().order_by('numeric_value')
+    departments = Department.objects.all()
+    
+    # Get initial books
+    initial_books = Book.objects.filter(
+        is_active=True
+    ).select_related('class_name', 'department')
+    
+    context = {
+        'classes': classes,
+        'departments': departments,
+        'initial_books': initial_books,
+    }
+    return render(request, 'website/books.html', context)
+
+
+
+
+def filter_books(request):
+    class_id = request.GET.get('class_id')
+    dept_slug = request.GET.get('dept_slug')
+    
+    books = Book.objects.filter(
+        is_active=True
+    ).select_related('class_name', 'department')
+    
+    if class_id:
+        books = books.filter(class_name_id=class_id)
+    elif dept_slug:
+        books = books.filter(department__slug=dept_slug)
+    
+    books = books.order_by('-updated_at')
+    
+    return render(request, 'component/routine/book_list.html', {
+        'books': books
     })
