@@ -197,22 +197,31 @@
         </li>
         <li>
           <a
-            href="#"
+            href="{% url 'gallery_list' %}"
             class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
+            data-turbo-frame="main-content"
+            data-turbo="true"
+            data-turbo-action="advance"
             >গ্যালারি</a
           >
         </li>
         <li>
           <a
-            href="#"
+            href="{% url 'information_service' %}"
             class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            >বিভিন্ন তথ্য</a
+            data-turbo-frame="main-content"
+            data-turbo="true"
+            data-turbo-action="advance"
+            >তথ্য সেবা</a
           >
         </li>
         <li>
           <a
-            href="#"
+            href="{% url 'contact' %}"
             class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
+            data-turbo-frame="main-content"
+            data-turbo="true"
+            data-turbo-action="advance"
             >যোগাযোগ</a
           >
         </li>
@@ -317,9 +326,9 @@
               </li>
               <li>
                 <a
-                  href="#"
+                  href="{% url 'contact' %}"
                   class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >রুটিন</a
+                  >যোগাযোগ</a
                 >
               </li>
               <li>
@@ -351,9 +360,22 @@
               </li>
               <li>
                 <a
-                  href="#"
+                  href="{% url 'gallery_list' %}"
                   class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
+                  data-turbo-frame="main-content"
+                  data-turbo="true"
+                  data-turbo-action="advance"
                   >গ্যালারি</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'information_service' %}"
+                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
+                  data-turbo-frame="main-content"
+                  data-turbo="true"
+                  data-turbo-action="advance"
+                  >তথ্য সেবা</a
                 >
               </li>
               <li>

@@ -1,75 +1,49 @@
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, HttpResponseNotFound, HttpResponseServerError, JsonResponse
 from django.shortcuts import render
 import json
 from .models import *
 from urllib.parse import quote
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.utils.translation import gettext as _
+import os
 
 
 def home(request):
-    dummy_data = {
-        'notice': [
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'নোটিশ এক', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'নোটিশ দুই', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'নোটিশ তিন', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'নোটিশ চার', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '১ জানুয়ারি ২০২০', 'title': 'নোটিশ পাঁচ', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২ জানুয়ারি ২০২০', 'title': 'নোটিশ ছয়', 'download_url': '#', 'icon': 'fa-file-pdf'},
-        ],
-        'results': [
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ফলাফল এক', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ফলাফল দুই', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ফলাফল তিন', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ফলাফল চার', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '১ জানুয়ারি ২০২০', 'title': 'ফলাফল পাঁচ', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২ জানুয়ারি ২০২০', 'title': 'ফলাফল ছয়', 'download_url': '#', 'icon': 'fa-file-pdf'},
-        ],
-        'admission': [
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ভর্তি এক', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ভর্তি দুই', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ভর্তি তিন', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'ভর্তি চার', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '১ জানুয়ারি ২০২০', 'title': 'ভর্তি পাঁচ', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২ জানুয়ারি ২০২০', 'title': 'ভর্তি ছয়', 'download_url': '#', 'icon': 'fa-file-pdf'},
-        ],
-        'routine': [
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'রুটিন এক', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'রুটিন দুই', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'রুটিন তিন', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২৫ জানুয়ারি ২০২০', 'title': 'রুটিন চার', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '১ জানুয়ারি ২০২০', 'title': 'রুটিন পাঁচ', 'download_url': '#', 'icon': 'fa-file-pdf'},
-            {'date': '২ জানুয়ারি ২০২০', 'title': 'রুটিন ছয়', 'download_url': '#', 'icon': 'fa-file-pdf'},
-        ],
-    }
-    
-    # Convert the data to JSON for the template
-    dummy_data_json = json.dumps(dummy_data, ensure_ascii=False)
+    # Slider images (only with actual images)
+    slider_images = Gallery.objects.filter(is_slider=True).exclude(image='').order_by('created_at')
+    # School info (brief/history)
+    school_info = SchoolInfo.objects.first()
+    # All active principal/head/vice messages (with their roles)
+    principal_messages = PrincipalMessage.objects.filter(is_active=True).select_related('role').order_by('order', '-created_at')
+    # Notices, Results, Admission, Routine (latest 5 each)
+    notices = Notice.objects.filter(type='notice', is_active=True).order_by('-date')[:5]
+    results = Notice.objects.filter(type='result', is_active=True).order_by('-date')[:5]
+    admissions = Notice.objects.filter(type='admission', is_active=True).order_by('-date')[:5]
+    routines = Notice.objects.filter(type='routine', is_active=True).order_by('-date')[:5]
+    # Recent event images (latest 6, only with actual images)
+    event_images = Gallery.objects.filter(category='event').exclude(image='').order_by('-created_at')[:6]
+    # Important links
+    important_links = ImportantLink.objects.filter(is_active=True).order_by('order', '-created_at')
+    # News items (latest 5)
+    news_items = News.objects.filter(is_active=True).order_by('order', '-created_at')[:5]
+    # News and Links section
+    news_links_section = NewsLink.objects.filter(is_active=True).first()
 
-    gallery_images = [
-        'img/home/institute.jpg',
-        'img/home/principal.jpg',
-        'img/home/slider1.jpg',
-        'img/home/slider2.jpg',
-        'img/home/slider3.jpg',
-        'img/home/institute.jpg',
-        'img/home/principal.jpg',
-        'img/home/slider1.jpg',
-        'img/home/slider2.jpg',
-        'img/home/slider3.jpg',
-    ]
-    
-    # Principal message data for the home page
-    principal_message = {
-        'title': 'অধ্যক্ষের বাণী',
-        'name': 'প্রফেসর মোঃ আবদুল করিম',
-        'message': 'প্রিয় শিক্ষার্থীরা,\n\nজ্ঞান অর্জনের জন্য অধ্যবসায়, সততা ও নিষ্ঠার বিকল্প নেই। তোমাদের প্রতিটি দিন হোক নতুন কিছু শেখার এবং নিজেকে গড়ে তোলার। আমাদের প্রতিষ্ঠান তোমাদের স্বপ্নপূরণের সহযাত্রী।\n\nশিক্ষা শুধু ডিগ্রি নয়, এটি মানবিক মূল্যবোধ, নৈতিকতা ও নেতৃত্বের শিক্ষা। তোমরা দেশ ও জাতির গর্ব হয়ে উঠো, এই কামনা করি।\n\nধন্যবাদ।'
+    context = {
+        'slider_images': slider_images,
+        'school_info': school_info,
+        'principal_messages': principal_messages,
+        'notices': notices,
+        'results': results,
+        'admissions': admissions,
+        'routines': routines,
+        'event_images': event_images,
+        'important_links': important_links,
+        'news_items': news_items,
+        'news_links_section': news_links_section,
     }
-    
-    return render(request, 'website/home.html', {
-        'dummy_data': dummy_data,
-        'dummy_data_json': dummy_data_json,
-        'gallery_images': gallery_images,
-        'principal_message': principal_message,
-    })
+    return render(request, 'website/home.html', context)
 
 
 
@@ -183,6 +157,8 @@ def filter_students(request):
 
 
 
+
+
 def about(request):
     # Sample about us content
     about_content = {
@@ -245,6 +221,7 @@ def about(request):
     return render(request, 'website/about.html', {
         'about_content': about_content
     })
+
 
 
 
@@ -483,3 +460,108 @@ def filter_gallery_videos(request):
             'description': video.description,
         })
     return JsonResponse({'videos': videos_data})
+
+
+def information_service(request):
+    """Information Service Center page"""
+    # Get slider images
+    slider_images = InformationSlider.objects.filter(is_active=True).order_by('order')
+    
+    # If no slider images, create a default one
+    if not slider_images.exists():
+        slider_images = [InformationSlider(
+            title='তথ্য সেবা কেন্দ্র',
+            description='আমাদের প্রতিষ্ঠানের সকল তথ্য একসাথে',
+            order=1,
+            is_active=True
+        )]
+    
+    # Get all facility information
+    facilities = FacilityInfo.objects.filter(is_active=True).order_by('order')
+    
+    # Group facilities by type
+    facility_groups = {}
+    for facility in facilities:
+        if facility.facility_type not in facility_groups:
+            facility_groups[facility.facility_type] = []
+        facility_groups[facility.facility_type].append(facility)
+    
+    # Get faculty information
+    faculty_members = FacultyInfo.objects.filter(is_active=True).order_by('order')
+    
+    # Get information service content
+    info_service = InformationService.objects.filter(is_active=True).first()
+    
+    context = {
+        'slider_images': slider_images,
+        'facility_groups': facility_groups,
+        'faculty_members': faculty_members,
+        'info_service': info_service,
+    }
+    return render(request, 'website/information_service.html', context)
+
+
+def filter_facilities(request):
+    """AJAX endpoint for filtering facilities"""
+    facility_type = request.GET.get('type', 'all')
+    
+    facilities = FacilityInfo.objects.filter(is_active=True)
+    
+    if facility_type != 'all':
+        facilities = facilities.filter(facility_type=facility_type)
+    
+    facilities = facilities.order_by('order')
+    
+    facilities_data = []
+    for facility in facilities:
+        facilities_data.append({
+            'id': facility.id,
+            'type': facility.facility_type,
+            'type_display': facility.get_facility_type_display(),
+            'title': facility.title,
+            'description': facility.description,
+            'icon': facility.icon,
+            'count': facility.count,
+            'unit': facility.unit,
+            'image_url': facility.image.url if facility.image else '',
+        })
+    
+    return JsonResponse({'facilities': facilities_data})
+
+
+def contact(request):
+    contact_info = ContactInfo.objects.filter(is_active=True).first()
+    return render(request, 'website/contact.html', {
+        'contact_info': contact_info
+    })
+
+@csrf_exempt
+@require_POST
+def submit_contact_message(request):
+    import json
+    data = json.loads(request.body.decode('utf-8'))
+    name = data.get('name', '').strip()
+    phone = data.get('phone', '').strip()
+    title = data.get('title', '').strip()
+    message = data.get('message', '').strip()
+
+    errors = {}
+    if not name:
+        errors['name'] = 'নাম আবশ্যক।'
+    if not phone:
+        errors['phone'] = 'ফোন নম্বর আবশ্যক।'
+    if not title:
+        errors['title'] = 'বার্তার শিরোনাম আবশ্যক।'
+    if not message:
+        errors['message'] = 'বার্তার বিবরণ আবশ্যক।'
+
+    if errors:
+        return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+    ContactMessage.objects.create(
+        name=name,
+        phone=phone,
+        title=title,
+        message=message
+    )
+    return JsonResponse({'success': True, 'message': 'আপনার বার্তা সফলভাবে পাঠানো হয়েছে!'}, status=201)

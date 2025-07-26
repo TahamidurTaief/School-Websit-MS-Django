@@ -80,12 +80,46 @@ class GalleryAdmin(ImportExportModelAdmin):
     list_filter = ('category', 'is_slider')
     search_fields = ('title', 'description')
 
-@admin.register(PrincipalMessage)
-class PrincipalMessageAdmin(ImportExportModelAdmin):
-    list_display = ('name', 'is_active', 'created_at')
+@admin.register(PrincipalRole)
+class PrincipalRoleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_active', 'order')
     list_filter = ('is_active',)
-    search_fields = ('name', 'message')
+    search_fields = ('name',)
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
 
+@admin.register(PrincipalMessage)
+class PrincipalMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'role', 'is_active', 'order')
+    list_filter = ('role', 'is_active')
+    search_fields = ('name', 'message', 'role__name')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+@admin.register(ImportantLink)
+class ImportantLinkAdmin(admin.ModelAdmin):
+    list_display = ('title', 'url', 'icon', 'is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'url', 'icon')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ('title', 'link', 'is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'description')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(NewsLink)
+class NewsLinkAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('title',)
+    list_editable = ('is_active',)
 
 
 @admin.register(RoutineType)
@@ -149,3 +183,75 @@ class VideoAdmin(ImportExportModelAdmin):
     search_fields = ('title', 'youtube_id', 'description')
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
+
+
+class InformationSliderResource(resources.ModelResource):
+    class Meta:
+        model = InformationSlider
+        fields = ('title', 'description', 'order', 'is_active')
+
+class FacilityInfoResource(resources.ModelResource):
+    class Meta:
+        model = FacilityInfo
+        fields = ('facility_type', 'title', 'description', 'icon', 'count', 'unit', 'order', 'is_active')
+
+
+class FacultyInfoResource(resources.ModelResource):
+    class Meta:
+        model = FacultyInfo
+        fields = ('name', 'position', 'department', 'education', 'experience', 'email', 'phone', 'order', 'is_active')
+
+
+@admin.register(InformationService)
+class InformationServiceAdmin(ImportExportModelAdmin):
+    list_display = ('title', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'description')
+    ordering = ('-created_at',)
+
+
+@admin.register(InformationSlider)
+class InformationSliderAdmin(ImportExportModelAdmin):
+    resource_class = InformationSliderResource
+    list_display = ('title', 'order', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'description')
+    ordering = ('order', '-created_at')
+    list_editable = ('order', 'is_active')
+
+
+@admin.register(FacilityInfo)
+class FacilityInfoAdmin(ImportExportModelAdmin):
+    resource_class = FacilityInfoResource
+    list_display = ('facility_type', 'title', 'count', 'unit', 'order', 'is_active')
+    list_filter = ('facility_type', 'is_active')
+    search_fields = ('title', 'description')
+    ordering = ('order', '-created_at')
+    list_editable = ('order', 'is_active')
+
+
+@admin.register(FacultyInfo)
+class FacultyInfoAdmin(ImportExportModelAdmin):
+    resource_class = FacultyInfoResource
+    list_display = ('name', 'position', 'department', 'experience', 'email', 'order', 'is_active')
+    list_filter = ('is_active', 'department')
+    search_fields = ('name', 'position', 'department', 'email')
+    ordering = ('order', '-created_at')
+    list_editable = ('order', 'is_active')
+
+@admin.register(ContactInfo)
+class ContactInfoAdmin(admin.ModelAdmin):
+    list_display = ('title', 'phone', 'email', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'address', 'phone', 'email')
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone', 'title', 'created_at', 'is_read')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('name', 'phone', 'title', 'message')
+    list_editable = ('is_read',)
+
+
+
+

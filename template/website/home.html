@@ -3,9 +3,10 @@
 {% block title %}Home | SchoolProject{% endblock %}
 
 {% block content %}
-{% include 'component/home/Hero.html' %}
-{% include 'component/home/history.html' %}
-{% include 'component/common/principal_message.html' with principal_message=principal_message %}
-{% include 'component/home/important_info.html' with dummy_data=dummy_data %}
-{% include 'component/home/gallery.html' with gallery_images=gallery_images %} 
+{% include 'component/common/slider.html' with slider_images=slider_images %}
+{% include 'component/common/school_info.html' with school_info=school_info %}
+{% include 'component/common/principal_message.html' with principal_messages=principal_messages %}
+{% include 'component/common/important_info.html' with notices=notices results=results admissions=admissions routines=routines %}
+{% include 'component/common/event_gallery.html' with event_images=event_images %}
+{% include 'component/common/important_links.html' with important_links=important_links %}
 {% endblock %}

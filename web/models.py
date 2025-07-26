@@ -126,20 +126,52 @@ class Gallery(TimeStampModel):
     def __str__(self):
         return self.title
 
+class PrincipalRole(TimeStampModel):
+    name = models.CharField(max_length=100, verbose_name='Role Name')
+    is_active = models.BooleanField(default=True, verbose_name='Active')
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'Principal/Head Role'
+        verbose_name_plural = 'Principal/Head Roles'
+
+    def __str__(self):
+        return self.name
+
 class PrincipalMessage(TimeStampModel):
     name = models.CharField(max_length=100)
+    role = models.ForeignKey(PrincipalRole, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Role')
     message = models.TextField()
-    photo = models.ImageField(upload_to='principal/')
+    photo = models.ImageField(upload_to='principal/', blank=True)
     is_active = models.BooleanField(default=True)
-    
+    order = models.IntegerField(default=0)
+
     def save(self, *args, **kwargs):
-        if self.is_active:
-            # Set all other messages to inactive
-            PrincipalMessage.objects.exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
-    
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'Principal/Head Message'
+        verbose_name_plural = 'Principal/Head Messages'
+
     def __str__(self):
-        return f"Principal Message - {self.name}"
+        return f"{self.role} - {self.name}" if self.role else self.name
+
+class ImportantLink(TimeStampModel):
+    title = models.CharField(max_length=200, verbose_name='শিরোনাম')
+    url = models.URLField(verbose_name='লিঙ্ক')
+    icon = models.CharField(max_length=50, blank=True, verbose_name='আইকন (FontAwesome)')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'গুরুত্বপূর্ণ লিঙ্ক'
+        verbose_name_plural = 'গুরুত্বপূর্ণ লিঙ্কসমূহ'
+
+    def __str__(self):
+        return self.title
 
 
 
@@ -226,3 +258,146 @@ class Video(TimeStampModel):
 
     def __str__(self):
         return self.title
+
+
+class InformationService(TimeStampModel):
+    """Main model for Information Service Center"""
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name_plural = "Information Service"
+    
+    def __str__(self):
+        return self.title
+
+
+class InformationSlider(TimeStampModel):
+    """Sliding photo gallery for information service"""
+    title = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='information_slider/')
+    description = models.TextField(blank=True)
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name_plural = "Information Sliders"
+    
+    def __str__(self):
+        return self.title
+
+
+class FacilityInfo(TimeStampModel):
+    """School facilities information"""
+    FACILITY_TYPES = (
+        ('classroom', 'কক্ষ সংখ্যা'),
+        ('computer', 'কম্পিউটার ব্যবহার'),
+        ('seats', 'ছাত্রছাত্রীর আসন সংখ্যা'),
+        ('multimedia', 'মাল্টিমিডিয়া ক্লাসরুম'),
+        ('transport', 'যানবাহন সুবিধা'),
+    )
+    
+    facility_type = models.CharField(max_length=20, choices=FACILITY_TYPES)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    icon = models.CharField(max_length=50, help_text="FontAwesome icon class")
+    count = models.IntegerField(default=0, help_text="Number/Count for this facility")
+    unit = models.CharField(max_length=20, blank=True, help_text="Unit (e.g., 'টি', 'জন', 'খানা')")
+    image = models.ImageField(upload_to='facilities/', blank=True)
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name_plural = "Facility Information"
+    
+    def __str__(self):
+        return f"{self.get_facility_type_display()} - {self.title}"
+
+
+class FacultyInfo(TimeStampModel):
+    """Faculty information for information service"""
+    name = models.CharField(max_length=200)
+    position = models.CharField(max_length=200)
+    department = models.CharField(max_length=200, blank=True)
+    education = models.CharField(max_length=200, blank=True)
+    experience = models.CharField(max_length=100, blank=True, help_text="Years of experience")
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    photo = models.ImageField(upload_to='faculty/', blank=True)
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name_plural = "Faculty Information"
+    
+    def __str__(self):
+        return f"{self.name} - {self.position}"
+
+class ContactInfo(TimeStampModel):
+    """Public contact information for the school"""
+    title = models.CharField(max_length=200, verbose_name='শিরোনাম')
+    address = models.TextField(verbose_name='ঠিকানা')
+    phone = models.CharField(max_length=30, verbose_name='ফোন নম্বর')
+    email = models.EmailField(verbose_name='ইমেইল')
+    map_embed = models.TextField(blank=True, verbose_name='গুগল ম্যাপ এম্বেড কোড', help_text='গুগল ম্যাপ এম্বেড কোড (ঐচ্ছিক)')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+
+    class Meta:
+        verbose_name = 'যোগাযোগের তথ্য'
+        verbose_name_plural = 'যোগাযোগের তথ্যসমূহ'
+
+    def __str__(self):
+        return self.title
+
+class ContactMessage(models.Model):
+    """Messages submitted via the public contact form"""
+    name = models.CharField(max_length=100, verbose_name='নাম')
+    phone = models.CharField(max_length=30, verbose_name='ফোন নম্বর')
+    title = models.CharField(max_length=200, verbose_name='বার্তার শিরোনাম')
+    message = models.TextField(verbose_name='বার্তার বিবরণ')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='পাঠানোর সময়')
+    is_read = models.BooleanField(default=False, verbose_name='পড়া হয়েছে')
+
+    class Meta:
+        verbose_name = 'যোগাযোগ বার্তা'
+        verbose_name_plural = 'যোগাযোগ বার্তাসমূহ'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.name} ({self.phone})"
+
+
+class News(TimeStampModel):
+    """News items for the home page"""
+    title = models.CharField(max_length=200, verbose_name='শিরোনাম')
+    description = models.TextField(blank=True, verbose_name='বিবরণ')
+    link = models.URLField(verbose_name='লিঙ্ক')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'সংবাদ'
+        verbose_name_plural = 'সংবাদসমূহ'
+
+    def __str__(self):
+        return self.title
+
+
+class NewsLink(TimeStampModel):
+    """News and Links section for home page"""
+    title = models.CharField(max_length=200, verbose_name='শিরোনাম', default='সংবাদ/প্রয়োজনীয় লিংক')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+
+    class Meta:
+        verbose_name = 'সংবাদ ও লিঙ্ক বিভাগ'
+        verbose_name_plural = 'সংবাদ ও লিঙ্ক বিভাগসমূহ'
+
+    def __str__(self):
+        return self.title
+
+
