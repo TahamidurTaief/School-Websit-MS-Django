@@ -56,6 +56,12 @@ class Class(TimeStampModel):
         return self.name
 
 class Teacher(TimeStampModel):
+    CATEGORY_CHOICES = [
+        ('special_officer', 'Special Officer'),
+        ('teacher', 'Teacher'),
+        ('management_board', 'Management Board'),
+    ]
+    category = models.CharField(max_length=32, choices=CATEGORY_CHOICES, default='teacher', verbose_name='Category')
     name = models.CharField(max_length=100)
     position = models.CharField(max_length=100)
     photo = models.ImageField(upload_to='teachers/')
@@ -397,6 +403,201 @@ class NewsLink(TimeStampModel):
         verbose_name = 'সংবাদ ও লিঙ্ক বিভাগ'
         verbose_name_plural = 'সংবাদ ও লিঙ্ক বিভাগসমূহ'
 
+    def __str__(self):
+        return self.title
+
+
+# About Page Models
+class AboutPage(TimeStampModel):
+    """Main about page configuration"""
+    title = models.CharField(max_length=200, default='আমাদের সম্পর্কে (About Us)', verbose_name='পৃষ্ঠার শিরোনাম')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    
+    class Meta:
+        verbose_name = 'আমাদের সম্পর্কে পৃষ্ঠা'
+        verbose_name_plural = 'আমাদের সম্পর্কে পৃষ্ঠা'
+    
+    def __str__(self):
+        return self.title
+
+
+class SchoolHistory(TimeStampModel):
+    """School history section"""
+    title = models.CharField(max_length=200, default='প্রতিষ্ঠানের ইতিহাস', verbose_name='শিরোনাম')
+    content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'প্রতিষ্ঠানের ইতিহাস'
+        verbose_name_plural = 'প্রতিষ্ঠানের ইতিহাস'
+    
+    def __str__(self):
+        return self.title
+
+
+class SchoolBriefInfo(TimeStampModel):
+    """School brief information with statistics"""
+    title = models.CharField(max_length=200, default='সংক্ষিপ্ত তথ্য', verbose_name='শিরোনাম')
+    description = models.TextField(verbose_name='বিস্তারিত বিবরণ')
+    teachers_count = models.CharField(max_length=20, default='৫০+', verbose_name='শিক্ষক-শিক্ষিকার সংখ্যা')
+    departments_count = models.CharField(max_length=20, default='৫', verbose_name='বিভাগের সংখ্যা')
+    classrooms_count = models.CharField(max_length=20, default='৩০+', verbose_name='ক্লাসরুমের সংখ্যা')
+    students_count = models.CharField(max_length=20, default='১০০০+', verbose_name='শিক্ষার্থীর সংখ্যা')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'সংক্ষিপ্ত তথ্য'
+        verbose_name_plural = 'সংক্ষিপ্ত তথ্য'
+    
+    def __str__(self):
+        return self.title
+
+
+class AboutPrincipalMessage(TimeStampModel):
+    """Principal message for about page"""
+    title = models.CharField(max_length=200, default='অধ্যক্ষের বাণী', verbose_name='শিরোনাম')
+    name = models.CharField(max_length=100, verbose_name='নাম')
+    message = models.TextField(verbose_name='বার্তা')
+    photo = models.ImageField(upload_to='about/principal/', blank=True, verbose_name='ছবি')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'অধ্যক্ষের বাণী (আমাদের সম্পর্কে)'
+        verbose_name_plural = 'অধ্যক্ষের বাণী (আমাদের সম্পর্কে)'
+    
+    def __str__(self):
+        return f"{self.title} - {self.name}"
+
+
+class SchoolApproval(TimeStampModel):
+    """School approval and recognition information"""
+    title = models.CharField(max_length=200, default='অনুমোদন', verbose_name='শিরোনাম')
+    content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'অনুমোদন'
+        verbose_name_plural = 'অনুমোদন'
+    
+    def __str__(self):
+        return self.title
+
+
+class SchoolBranch(TimeStampModel):
+    """School branches information"""
+    name = models.CharField(max_length=200, verbose_name='শাখার নাম')
+    location = models.CharField(max_length=200, verbose_name='ঠিকানা')
+    established_year = models.CharField(max_length=20, verbose_name='প্রতিষ্ঠাকাল')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'শাখা'
+        verbose_name_plural = 'শাখাসমূহ'
+    
+    def __str__(self):
+        return f"{self.name} - {self.location}"
+
+
+class SchoolRecognition(TimeStampModel):
+    """School recognition and awards"""
+    title = models.CharField(max_length=200, default='স্বীকৃতি', verbose_name='শিরোনাম')
+    content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
+    document = models.FileField(
+        upload_to='recognition_documents/',
+        blank=True,
+        null=True,
+        verbose_name='স্বীকৃতি দলিল',
+        help_text='PDF, DOC, or image file'
+    )
+    document_title = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='দলিলের শিরোনাম',
+        help_text='Document title to display'
+    )
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'স্বীকৃতি'
+        verbose_name_plural = 'স্বীকৃতি'
+    
+    def __str__(self):
+        return self.title
+
+
+class SchoolAims(TimeStampModel):
+    """School aims and objectives"""
+    title = models.CharField(max_length=200, default='লক্ষ্য ও উদ্দেশ্য', verbose_name='শিরোনাম')
+    content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'লক্ষ্য ও উদ্দেশ্য'
+        verbose_name_plural = 'লক্ষ্য ও উদ্দেশ্য'
+    
+    def __str__(self):
+        return self.title
+
+
+class AimPoint(TimeStampModel):
+    """Individual aim points"""
+    aim = models.ForeignKey(SchoolAims, on_delete=models.CASCADE, related_name='points', verbose_name='লক্ষ্য')
+    point = models.CharField(max_length=500, verbose_name='লক্ষ্য পয়েন্ট')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'লক্ষ্য পয়েন্ট'
+        verbose_name_plural = 'লক্ষ্য পয়েন্টসমূহ'
+    
+    def __str__(self):
+        return self.point
+
+
+class AboutNewsItem(TimeStampModel):
+    """News items for about page"""
+    title = models.CharField(max_length=200, verbose_name='সংবাদের শিরোনাম')
+    date = models.CharField(max_length=50, verbose_name='তারিখ')
+    link = models.URLField(verbose_name='লিঙ্ক')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'সংবাদ আইটেম'
+        verbose_name_plural = 'সংবাদ আইটেমসমূহ'
+    
+    def __str__(self):
+        return self.title
+
+
+class AboutLink(TimeStampModel):
+    """Important links for about page"""
+    title = models.CharField(max_length=200, verbose_name='লিঙ্কের শিরোনাম')
+    url = models.URLField(verbose_name='লিঙ্ক')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'গুরুত্বপূর্ণ লিঙ্ক'
+        verbose_name_plural = 'গুরুত্বপূর্ণ লিঙ্কসমূহ'
+    
     def __str__(self):
         return self.title
 

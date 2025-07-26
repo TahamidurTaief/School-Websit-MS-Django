@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.translation import gettext as _
 import os
+from .models import Teacher
 
 
 def home(request):
@@ -48,64 +49,15 @@ def home(request):
 
 
 def administration(request):
-    # Dummy data - will be replaced with database queries
+    special_officers = Teacher.objects.filter(category='special_officer').order_by('id')
+    teachers = Teacher.objects.filter(category='teacher').order_by('id')
+    management_board = Teacher.objects.filter(category='management_board').order_by('id')
+
     administration_data = {
-        'special_officers': [
-            {
-                'name': 'জনাব আব্দুল করিম',
-                'position': 'প্রধান অভিযোগ গ্রহণকারী কর্মকর্তা',
-                'image': 'img/administration/1.jpeg',
-                'social_links': [
-                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
-                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
-                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
-                ]
-            },
-            {
-                'name': 'জনাব রফিকুল ইসলাম',
-                'position': 'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
-                'image': 'img/administration/2.jpeg',
-                'social_links': [
-                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
-                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
-                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
-                ]
-            },
-            {
-                'name': 'জনাব আমিনুল হক',
-                'position': 'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
-                'image': 'img/administration/3.jpeg',
-                'social_links': [
-                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
-                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
-                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
-                ]
-            },
-            {
-                'name': 'জনাবা সালমা বেগম',
-                'position': 'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
-                'image': 'img/administration/4.jpeg',
-                'social_links': [
-                    {'url': '#', 'icon': 'fab fa-facebook-f', 'hover_color': 'text-blue-600'},
-                    {'url': '#', 'icon': 'fab fa-twitter', 'hover_color': 'text-blue-400'},
-                    {'url': '#', 'icon': 'fab fa-linkedin-in', 'hover_color': 'text-blue-700'}
-                ]
-            }
-        ],
-        'teachers': [
-            {'name': 'ড. মোহাম্মদ আলী', 'position': 'প্রধান শিক্ষক', 'image': 'img/administration/10.jpeg'},
-            {'name': 'জনাব রহিম উদ্দিন', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/9.jpg'},
-            {'name': 'জনাবা ফারজানা আক্তার', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/8.jpeg'},
-            {'name': 'জনাব কামাল হোসেন', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/7.jpeg'},
-            {'name': 'জনাবা নাসরিন সুলতানা', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/6.jpeg'},
-            {'name': 'জনাব মাহমুদুল হাসান', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/5.jpeg'},
-            {'name': 'জনাবা সাবরিনা হক', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/4.jpeg'},
-            {'name': 'জনাব তৌহিদুল ইসলাম', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/3.jpeg'},
-            {'name': 'জনাবা রুমানা আক্তার', 'position': 'সহকারী শিক্ষিকা', 'image': 'img/administration/2.jpeg'},
-            {'name': 'জনাব আরিফুল ইসলাম', 'position': 'সহকারী শিক্ষক', 'image': 'img/administration/1.jpeg'}
-        ]
+        'special_officers': special_officers,
+        'teachers': teachers,
+        'management_board': management_board,
     }
-    
     return render(request, 'website/administration.html', administration_data)
 
 
@@ -160,67 +112,153 @@ def filter_students(request):
 
 
 def about(request):
-    # Sample about us content
-    about_content = {
-        'title': 'আমাদের সম্পর্কে (About Us)',
-        'history': {
-            'title': 'প্রতিষ্ঠানের ইতিহাস',
-            'content': 'আমাদের স্কুল ১৯৮০ সালে প্রতিষ্ঠিত হয়েছিল। প্রতিষ্ঠানটি প্রথমে একটি ছোট ভবনে শুরু হয়েছিল মাত্র ৫০ জন শিক্ষার্থী নিয়ে। বর্তমানে আমাদের প্রতিষ্ঠানে ১০০০+ শিক্ষার্থী অধ্যয়নরত। গত ৪০+ বছরে আমাদের প্রতিষ্ঠান অনেক চড়াই-উতরাই পেরিয়ে আজ একটি সম্মানজনক অবস্থানে পৌঁছেছে। আমাদের প্রাক্তন শিক্ষার্থীরা দেশের বিভিন্ন গুরুত্বপূর্ণ পদে অধিষ্ঠিত আছেন এবং সমাজের উন্নয়নে অবদান রাখছেন।'
-        },
-        'brief_info': {
-            'title': 'সংক্ষিপ্ত তথ্য',
-            'teachers': '৫০+',
-            'departments': '৫',
-            'classrooms': '৩০+',
-            'students': '১০০০+',
-            'description': 'আমাদের প্রতিষ্ঠানে অভিজ্ঞ শিক্ষক-শিক্ষিকা দ্বারা পরিচালিত বিভিন্ন বিভাগ রয়েছে। আধুনিক সুযোগ-সুবিধা সম্পন্ন ক্লাসরুম, ল্যাবরেটরি, লাইব্রেরি এবং খেলার মাঠ রয়েছে।'
-        },
-        'principal_message': {
-            'title': 'অধ্যক্ষের বাণী',
-            'name': 'প্রফেসর মোঃ আবদুল করিম',
-            'message': 'প্রিয় শিক্ষার্থীরা,\n\nজ্ঞান অর্জনের জন্য অধ্যবসায়, সততা ও নিষ্ঠার বিকল্প নেই। তোমাদের প্রতিটি দিন হোক নতুন কিছু শেখার এবং নিজেকে গড়ে তোলার। আমাদের প্রতিষ্ঠান তোমাদের স্বপ্নপূরণের সহযাত্রী।\n\nশিক্ষা শুধু ডিগ্রি নয়, এটি মানবিক মূল্যবোধ, নৈতিকতা ও নেতৃত্বের শিক্ষা। তোমরা দেশ ও জাতির গর্ব হয়ে উঠো, এই কামনা করি।\n\nধন্যবাদ।'
-        },
-        'approval': {
-            'title': 'অনুমোদন',
-            'content': 'আমাদের প্রতিষ্ঠানটি শিক্ষা মন্ত্রণালয় কর্তৃক অনুমোদিত এবর বাংলাদেশ শিক্ষা বোর্ড দ্বারা স্বীকৃত। আমাদের প্রতিষ্ঠানের সকল শাখা সরকারি নিয়ম অনুযায়ী পরিচালিত হয়।',
-            'branches': [
-                {'name': 'প্রধান শাখা', 'location': 'মিরপুর, ঢাকা', 'established': '১৯৮০'},
-                {'name': 'দ্বিতীয় শাখা', 'location': 'উত্তরা, ঢাকা', 'established': '২০০৫'}
-            ]
-        },
-        'recognition': {
-            'title': 'স্বীকৃতি',
-            'content': 'আমাদের প্রতিষ্ঠান বিভিন্ন জাতীয় ও আন্তর্জাতিক পুরস্কার অর্জন করেছে। আমরা শিক্ষা মন্ত্রণালয় থেকে "সেরা শিক্ষা প্রতিষ্ঠান" হিসেবে স্বীকৃতি পেয়েছি।'
-        },
-        'aims': {
-            'title': 'লক্ষ্য ও উদ্দেশ্য',
-            'content': 'আমাদের প্রতিষ্ঠানের মূল লক্ষ্য হল শিক্ষার্থীদের মেধা ও মননের সর্বাঙ্গীণ বিকাশ সাধন করা। আমরা চাই আমাদের শিক্ষার্থীরা শুধু একাডেমিক জ্ঞান নয়, বরং নৈতিক মূল্যবোধ, সামাজিক দায়বদ্ধতা এবং নেতৃত্বের গুণাবলী অর্জন করুক।',
-            'points': [
-                'উচ্চমানের শিক্ষা প্রদান',
-                'নৈতিক মূল্যবোধ গঠন',
-                'সৃজনশীলতা ও উদ্ভাবনী চিন্তার বিকাশ',
-                'দেশপ্রেম ও সামাজিক দায়বদ্ধতা সৃষ্টি',
-                'আধুনিক প্রযুক্তি ব্যবহারে দক্ষতা অর্জন'
-            ]
-        },
-        'news_links': {
-            'title': 'সংবাদ/প্রয়োজনীয় লিংক',
-            'news': [
-                {'title': 'বার্ষিক ক্রীড়া প্রতিযোগিতা ২০২৩', 'date': '১০ ডিসেম্বর, ২০২৩', 'link': '#'},
-                {'title': 'বিজ্ঞান মেলা আয়োজন', 'date': '১৪ নভেম্বর, ২০২৩', 'link': '#'},
-                {'title': 'শিক্ষক নিয়োগ বিজ্ঞপ্তি', 'date': '০৫ অক্টোবর, ২০২৩', 'link': '#'}
-            ],
-            'links': [
-                {'title': 'শিক্ষা মন্ত্রণালয়', 'url': 'https://moedu.gov.bd/'},
-                {'title': 'বাংলাদেশ শিক্ষা বোর্ড', 'url': 'https://www.educationboard.gov.bd/'},
-                {'title': 'জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড', 'url': 'http://www.nctb.gov.bd/'}
-            ]
+    """About page with dynamic content from database"""
+    try:
+        # Get main about page configuration
+        about_page = AboutPage.objects.filter(is_active=True).first()
+        
+        # Get school history
+        history = SchoolHistory.objects.filter(is_active=True).first()
+        
+        # Get brief information
+        brief_info = SchoolBriefInfo.objects.filter(is_active=True).first()
+        
+        # Get principal message for about page
+        principal_message_obj = AboutPrincipalMessage.objects.filter(is_active=True).first()
+        
+        # Get school approval information
+        approval = SchoolApproval.objects.filter(is_active=True).first()
+        
+        # Get school branches
+        branches = SchoolBranch.objects.filter(is_active=True).order_by('order')
+        
+        # Get school recognition
+        recognition = SchoolRecognition.objects.filter(is_active=True).first()
+        
+        # Get school aims and objectives
+        aims = SchoolAims.objects.filter(is_active=True).first()
+        
+        # Get aim points
+        aim_points = []
+        if aims:
+            aim_points = AimPoint.objects.filter(aim=aims, is_active=True).order_by('order')
+        
+        # Get news items
+        news_items = AboutNewsItem.objects.filter(is_active=True).order_by('order')[:5]
+        
+        # Get important links
+        links = AboutLink.objects.filter(is_active=True).order_by('order')[:5]
+        
+        # Prepare context data
+        about_content = {
+            'title': about_page.title if about_page else 'আমাদের সম্পর্কে (About Us)',
+            'history': {
+                'title': history.title if history else 'প্রতিষ্ঠানের ইতিহাস',
+                'content': history.content if history else 'ইতিহাসের তথ্য পাওয়া যায়নি।'
+            },
+            'brief_info': {
+                'title': brief_info.title if brief_info else 'সংক্ষিপ্ত তথ্য',
+                'teachers': brief_info.teachers_count if brief_info else '৫০+',
+                'departments': brief_info.departments_count if brief_info else '৫',
+                'classrooms': brief_info.classrooms_count if brief_info else '৩০+',
+                'students': brief_info.students_count if brief_info else '১০০০+',
+                'description': brief_info.description if brief_info else 'সংক্ষিপ্ত তথ্যের বিবরণ পাওয়া যায়নি।'
+            },
+            'principal_message': principal_message_obj,
+            'approval': {
+                'title': approval.title if approval else 'অনুমোদন',
+                'content': approval.content if approval else 'অনুমোদনের তথ্য পাওয়া যায়নি।',
+                'branches': [
+                    {
+                        'name': branch.name,
+                        'location': branch.location,
+                        'established': branch.established_year
+                    } for branch in branches
+                ]
+            },
+            'recognition': recognition,
+            'aims': {
+                'title': aims.title if aims else 'লক্ষ্য ও উদ্দেশ্য',
+                'content': aims.content if aims else 'লক্ষ্য ও উদ্দেশ্যের বিবরণ পাওয়া যায়নি।',
+                'points': [point.point for point in aim_points]
+            },
+            'news_links': {
+                'title': 'সংবাদ/প্রয়োজনীয় লিংক',
+                'news': [
+                    {
+                        'title': news.title,
+                        'date': news.date,
+                        'link': news.link
+                    } for news in news_items
+                ],
+                'links': [
+                    {
+                        'title': link.title,
+                        'url': link.url
+                    } for link in links
+                ]
+            }
         }
-    }
-    
-    return render(request, 'website/about.html', {
-        'about_content': about_content
-    })
+        
+        return render(request, 'website/about.html', {
+            'about_content': about_content
+        })
+        
+    except Exception as e:
+        # Fallback to default content if there's any error
+        about_content = {
+            'title': 'আমাদের সম্পর্কে (About Us)',
+            'history': {
+                'title': 'প্রতিষ্ঠানের ইতিহাস',
+                'content': 'আমাদের স্কুল ১৯৮০ সালে প্রতিষ্ঠিত হয়েছিল। প্রতিষ্ঠানটি প্রথমে একটি ছোট ভবনে শুরু হয়েছিল মাত্র ৫০ জন শিক্ষার্থী নিয়ে। বর্তমানে আমাদের প্রতিষ্ঠানে ১০০০+ শিক্ষার্থী অধ্যয়নরত। গত ৪০+ বছরে আমাদের প্রতিষ্ঠান অনেক চড়াই-উতরাই পেরিয়ে আজ একটি সম্মানজনক অবস্থানে পৌঁছেছে। আমাদের প্রাক্তন শিক্ষার্থীরা দেশের বিভিন্ন গুরুত্বপূর্ণ পদে অধিষ্ঠিত আছেন এবং সমাজের উন্নয়নে অবদান রাখছেন।'
+            },
+            'brief_info': {
+                'title': 'সংক্ষিপ্ত তথ্য',
+                'teachers': '৫০+',
+                'departments': '৫',
+                'classrooms': '৩০+',
+                'students': '১০০০+',
+                'description': 'আমাদের প্রতিষ্ঠানে অভিজ্ঞ শিক্ষক-শিক্ষিকা দ্বারা পরিচালিত বিভিন্ন বিভাগ রয়েছে। আধুনিক সুযোগ-সুবিধা সম্পন্ন ক্লাসরুম, ল্যাবরেটরি, লাইব্রেরি এবং খেলার মাঠ রয়েছে।'
+            },
+            'principal_message': None,
+            'approval': {
+                'title': 'অনুমোদন',
+                'content': 'আমাদের প্রতিষ্ঠানটি শিক্ষা মন্ত্রণালয় কর্তৃক অনুমোদিত এবর বাংলাদেশ শিক্ষা বোর্ড দ্বারা স্বীকৃত। আমাদের প্রতিষ্ঠানের সকল শাখা সরকারি নিয়ম অনুযায়ী পরিচালিত হয়।',
+                'branches': [
+                    {'name': 'প্রধান শাখা', 'location': 'মিরপুর, ঢাকা', 'established': '১৯৮০'},
+                    {'name': 'দ্বিতীয় শাখা', 'location': 'উত্তরা, ঢাকা', 'established': '২০০৫'}
+                ]
+            },
+            'recognition': None,
+            'aims': {
+                'title': 'লক্ষ্য ও উদ্দেশ্য',
+                'content': 'আমাদের প্রতিষ্ঠানের মূল লক্ষ্য হল শিক্ষার্থীদের মেধা ও মননের সর্বাঙ্গীণ বিকাশ সাধন করা। আমরা চাই আমাদের শিক্ষার্থীরা শুধু একাডেমিক জ্ঞান নয়, বরং নৈতিক মূল্যবোধ, সামাজিক দায়বদ্ধতা এবং নেতৃত্বের গুণাবলী অর্জন করুক।',
+                'points': [
+                    'উচ্চমানের শিক্ষা প্রদান',
+                    'নৈতিক মূল্যবোধ গঠন',
+                    'সৃজনশীলতা ও উদ্ভাবনী চিন্তার বিকাশ',
+                    'দেশপ্রেম ও সামাজিক দায়বদ্ধতা সৃষ্টি',
+                    'আধুনিক প্রযুক্তি ব্যবহারে দক্ষতা অর্জন'
+                ]
+            },
+            'news_links': {
+                'title': 'সংবাদ/প্রয়োজনীয় লিংক',
+                'news': [
+                    {'title': 'বার্ষিক ক্রীড়া প্রতিযোগিতা ২০২৩', 'date': '১০ ডিসেম্বর, ২০২৩', 'link': '#'},
+                    {'title': 'বিজ্ঞান মেলা আয়োজন', 'date': '১৪ নভেম্বর, ২০২৩', 'link': '#'},
+                    {'title': 'শিক্ষক নিয়োগ বিজ্ঞপ্তি', 'date': '০৫ অক্টোবর, ২০২৩', 'link': '#'}
+                ],
+                'links': [
+                    {'title': 'শিক্ষা মন্ত্রণালয়', 'url': 'https://moedu.gov.bd/'},
+                    {'title': 'বাংলাদেশ শিক্ষা বোর্ড', 'url': 'https://www.educationboard.gov.bd/'},
+                    {'title': 'জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড', 'url': 'http://www.nctb.gov.bd/'}
+                ]
+            }
+        }
+        
+        return render(request, 'website/about.html', {
+            'about_content': about_content
+        })
 
 
 

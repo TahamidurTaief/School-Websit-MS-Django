@@ -31,7 +31,7 @@ class Command(BaseCommand):
             mission='শিক্ষার্থীদের সর্বাঙ্গীণ বিকাশ সাধন।'
         )
 
-        # Create Departments
+        # Create Departments (use get_or_create to avoid slug conflict)
         departments = [
             ('বিজ্ঞান', 'Science', 'fas fa-flask'),
             ('বাণিজ্য', 'Commerce', 'fas fa-chart-line'),
@@ -39,16 +39,17 @@ class Command(BaseCommand):
             ('কম্পিউটার বিজ্ঞান', 'Computer Science', 'fas fa-laptop-code'),
             ('ইলেকট্রিক্যাল', 'Electrical Engineering', 'fas fa-bolt')
         ]
-        
+        department_objs = []
         for name_bn, name_en, icon in departments:
-            Department.objects.create(
+            dept, _ = Department.objects.get_or_create(
                 name=name_bn,
                 name_en=name_en,
                 icon=icon,
-                description=fake.paragraph()
+                defaults={'description': fake.paragraph()}
             )
+            department_objs.append(dept)
 
-        # Create Classes
+        # Create Classes (use get_or_create)
         classes = [
             ('ষষ্ঠ শ্রেণী', 'Class Six', 6),
             ('সপ্তম শ্রেণী', 'Class Seven', 7),
@@ -58,27 +59,72 @@ class Command(BaseCommand):
             ('একাদশ শ্রেণী', 'Class Eleven', 11),
             ('দ্বাদশ শ্রেণী', 'Class Twelve', 12),
         ]
-        
+        class_objs = []
         for name_bn, name_en, value in classes:
-            Class.objects.create(
+            cls, _ = Class.objects.get_or_create(
                 name=name_bn,
                 name_en=name_en,
                 numeric_value=value,
-                description=fake.paragraph()
+                defaults={'description': fake.paragraph()}
             )
+            class_objs.append(cls)
 
-        # Create Teachers
-        positions = ['প্রধান শিক্ষক', 'সহকারী শিক্ষক', 'বিজ্ঞান শিক্ষক', 'ইংরেজি শিক্ষক', 'গণিত শিক্ষক']
-        for _ in range(10):
+        # Only clear Teacher objects
+        Teacher.objects.all().delete()
+        image_pool = [
+            f'img/administration/{i}.jpeg' for i in range(1, 11)
+        ] + [
+            'img/administration/9.jpg'
+        ]
+        # Special Officers
+        special_officer_positions = [
+            'প্রধান অভিযোগ গ্রহণকারী কর্মকর্তা',
+            'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
+            'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
+            'সহকারী অভিযোগ গ্রহণকারী কর্মকর্তা',
+        ]
+        for i, position in enumerate(special_officer_positions):
             Teacher.objects.create(
+                category='special_officer',
                 name=fake.name(),
-                position=random.choice(positions),
-                education=f'এমএসসি, {fake.word()}',
-                specialization=fake.word(),
-                experience=fake.paragraph(),
-                email=fake.email(),
-                phone=fake.phone_number(),
-                is_special_officer=random.choice([True, False])
+                position=position,
+                photo=random.choice(image_pool),
+                facebook='https://facebook.com/',
+                twitter='https://twitter.com/',
+                linkedin='https://linkedin.com/',
+                is_special_officer=True
+            )
+        # Teachers
+        teacher_positions = [
+            'প্রধান শিক্ষক', 'সহকারী শিক্ষক', 'সহকারী শিক্ষিকা', 'সহকারী শিক্ষক',
+            'সহকারী শিক্ষিকা', 'সহকারী শিক্ষক', 'সহকারী শিক্ষিকা', 'সহকারী শিক্ষক',
+            'সহকারী শিক্ষিকা', 'সহকারী শিক্ষক'
+        ]
+        for i, position in enumerate(teacher_positions):
+            Teacher.objects.create(
+                category='teacher',
+                name=fake.name(),
+                position=position,
+                photo=random.choice(image_pool),
+                facebook='https://facebook.com/',
+                twitter='https://twitter.com/',
+                linkedin='https://linkedin.com/',
+                is_special_officer=False
+            )
+        # Management Board
+        management_board_positions = [
+            'সভাপতি', 'সহ-সভাপতি', 'সদস্য', 'সদস্য'
+        ]
+        for i, position in enumerate(management_board_positions):
+            Teacher.objects.create(
+                category='management_board',
+                name=fake.name(),
+                position=position,
+                photo=random.choice(image_pool),
+                facebook='https://facebook.com/',
+                twitter='https://twitter.com/',
+                linkedin='https://linkedin.com/',
+                is_special_officer=False
             )
 
         # Create Students

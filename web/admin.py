@@ -55,9 +55,9 @@ class ClassAdmin(ImportExportModelAdmin):
 @admin.register(Teacher)
 class TeacherAdmin(ImportExportModelAdmin):
     resource_class = TeacherResource
-    list_display = ('name', 'position', 'email', 'phone', 'is_special_officer')
-    list_filter = ('is_special_officer', 'position')
-    search_fields = ('name', 'position', 'email', 'phone')
+    list_display = ('name', 'position', 'category', 'email', 'phone', 'is_special_officer')
+    list_filter = ('category', 'is_special_officer', 'position')
+    search_fields = ('name', 'position', 'email', 'phone', 'category')
 
 @admin.register(Student)
 class StudentAdmin(ImportExportModelAdmin):
@@ -251,6 +251,105 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_filter = ('is_read', 'created_at')
     search_fields = ('name', 'phone', 'title', 'message')
     list_editable = ('is_read',)
+
+
+# About Page Admin Classes
+@admin.register(AboutPage)
+class AboutPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title',)
+    list_editable = ('is_active',)
+
+
+@admin.register(SchoolHistory)
+class SchoolHistoryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'content')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(SchoolBriefInfo)
+class SchoolBriefInfoAdmin(admin.ModelAdmin):
+    list_display = ('title', 'teachers_count', 'departments_count', 'classrooms_count', 'students_count', 'is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'description')
+    list_editable = ('is_active', 'order', 'teachers_count', 'departments_count', 'classrooms_count', 'students_count')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(AboutPrincipalMessage)
+class AboutPrincipalMessageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'name', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'name', 'message')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(SchoolApproval)
+class SchoolApprovalAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'content')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(SchoolBranch)
+class SchoolBranchAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'established_year', 'is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'location')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(SchoolRecognition)
+class SchoolRecognitionAdmin(admin.ModelAdmin):
+    list_display = ('title', 'document_title', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'content', 'document_title')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(SchoolAims)
+class SchoolAimsAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'content')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(AimPoint)
+class AimPointAdmin(admin.ModelAdmin):
+    list_display = ('point', 'aim', 'is_active', 'order')
+    list_filter = ('is_active', 'aim')
+    search_fields = ('point', 'aim__title')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(AboutNewsItem)
+class AboutNewsItemAdmin(admin.ModelAdmin):
+    list_display = ('title', 'date', 'link', 'is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'date')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
+
+
+@admin.register(AboutLink)
+class AboutLinkAdmin(admin.ModelAdmin):
+    list_display = ('title', 'url', 'is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'url')
+    list_editable = ('is_active', 'order')
+    ordering = ('order', '-created_at')
 
 
 

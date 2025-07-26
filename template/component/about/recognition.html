@@ -1,20 +1,114 @@
 {% load static %}
 <section class="container mx-auto my-10 p-6 border border-gray-300 rounded-lg bg-white shadow-lg hover:shadow-2xl transition-shadow duration-500 group overflow-hidden">
   <div class="flex flex-col items-center justify-center">
-    <h2 class="text-3xl md:text-4xl font-bold text-center text-[var(--color-primary)] mb-2 tracking-wider">{{ recognition.title }}</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center text-[var(--color-primary)] mb-2 tracking-wider">{% if recognition %}{{ recognition.title }}{% else %}স্বীকৃতি{% endif %}</h2>
     <div class="h-1 w-16 bg-gradient-to-r from-[var(--color-primary)] to-purple-500 rounded-full transform transition-all duration-500 group-hover:w-40 group-hover:h-2 mb-8"></div>
     
-    <div class="prose prose-lg max-w-4xl mx-auto text-gray-700 text-lg leading-relaxed">
-      <p class="text-justify">{{ recognition.content }}</p>
-    </div>
-    
-    <div class="mt-8 flex justify-center">
-      <div class="bg-yellow-50 p-6 rounded-lg shadow-md border-t-4 border-yellow-500 max-w-md">
-        <div class="flex items-center justify-center mb-4">
-          <i class="fas fa-award text-4xl text-yellow-600"></i>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-6xl mx-auto">
+      <!-- Left Side: Content -->
+      <div class="flex flex-col">
+        <h3 class="text-2xl font-semibold text-[var(--color-primary)] mb-4 flex items-center">
+          <i class="fas fa-info-circle text-blue-600 mr-3"></i>
+          স্বীকৃতির বিবরণ
+        </h3>
+        <div class="prose prose-lg text-gray-700 text-lg leading-relaxed">
+          <p class="text-justify">{% if recognition %}{{ recognition.content }}{% else %}স্বীকৃতির তথ্য পাওয়া যায়নি।{% endif %}</p>
         </div>
-        <h3 class="text-xl font-bold text-center text-gray-800 mb-2">সেরা শিক্ষা প্রতিষ্ঠান</h3>
-        <p class="text-center text-gray-600">শিক্ষা মন্ত্রণালয় কর্তৃক প্রদত্ত</p>
+        
+        <!-- Awards Section -->
+        <div class="mt-6 bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
+          <div class="flex items-center mb-4">
+            <i class="fas fa-award text-3xl text-yellow-600 mr-3"></i>
+            <h4 class="text-xl font-bold text-gray-800">সেরা শিক্ষা প্রতিষ্ঠান</h4>
+          </div>
+          <p class="text-gray-700 mb-3">শিক্ষা মন্ত্রণালয় কর্তৃক প্রদত্ত</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">এ+ গ্রেড</span>
+            <span class="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-medium">জাতীয় পুরস্কার</span>
+            <span class="bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">আন্তর্জাতিক স্বীকৃতি</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Side: Document -->
+      <div class="flex flex-col">
+        <h3 class="text-2xl font-semibold text-[var(--color-primary)] mb-4 flex items-center">
+          <i class="fas fa-file-alt text-green-600 mr-3"></i>
+          স্বীকৃতি দলিল
+        </h3>
+        
+        {% if recognition.document %}
+          <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-400 transition-colors duration-300">
+            <div class="text-center">
+              <div class="mb-4">
+                {% if recognition.document.name|lower|slice:"-4:" == ".pdf" %}
+                  <i class="fas fa-file-pdf text-6xl text-red-500 mb-4"></i>
+                {% elif recognition.document.name|lower|slice:"-4:" == ".doc" or recognition.document.name|lower|slice:"-5:" == ".docx" %}
+                  <i class="fas fa-file-word text-6xl text-blue-500 mb-4"></i>
+                {% elif recognition.document.name|lower|slice:"-4:" == ".jpg" or recognition.document.name|lower|slice:"-5:" == ".jpeg" or recognition.document.name|lower|slice:"-4:" == ".png" %}
+                  <i class="fas fa-file-image text-6xl text-green-500 mb-4"></i>
+                {% else %}
+                  <i class="fas fa-file text-6xl text-gray-500 mb-4"></i>
+                {% endif %}
+              </div>
+              
+              <h4 class="text-lg font-semibold text-gray-800 mb-2">
+                {% if recognition.document_title %}
+                  {{ recognition.document_title }}
+                {% else %}
+                  স্বীকৃতি দলিল
+                {% endif %}
+              </h4>
+              
+              <p class="text-gray-600 text-sm mb-4">
+                ফাইল সাইজ: {{ recognition.document.size|filesizeformat }}
+              </p>
+              
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="{{ recognition.document.url }}" 
+                   target="_blank" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300">
+                  <i class="fas fa-eye mr-2"></i>
+                  দেখুন
+                </a>
+                <a href="{{ recognition.document.url }}" 
+                   download
+                   class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-300">
+                  <i class="fas fa-download mr-2"></i>
+                  ডাউনলোড
+                </a>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <i class="fas fa-file-upload text-4xl text-gray-400 mb-4"></i>
+            <h4 class="text-lg font-semibold text-gray-600 mb-2">কোন দলিল নেই</h4>
+            <p class="text-gray-500 text-sm">স্বীকৃতি দলিল এখনও আপলোড করা হয়নি</p>
+          </div>
+        {% endif %}
+        
+        <!-- Additional Recognition Info -->
+        <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+          <h4 class="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+            <i class="fas fa-certificate text-blue-600 mr-2"></i>
+            অন্যান্য স্বীকৃতি
+          </h4>
+          <ul class="space-y-2 text-sm text-blue-700">
+            <li class="flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-2"></i>
+              বাংলাদেশ শিক্ষা বোর্ড কর্তৃক স্বীকৃত
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-2"></i>
+              জাতীয় শিক্ষাক্রম অনুসরণকারী
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-2"></i>
+              সরকারি নিয়ম অনুযায়ী পরিচালিত
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
