@@ -111,6 +111,8 @@ def filter_students(request):
 
 
 
+
+
 def about(request):
     """About page with dynamic content from database"""
     try:

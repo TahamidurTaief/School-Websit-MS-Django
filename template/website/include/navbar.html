@@ -1,429 +1,124 @@
-<!-- Top Info Bar -->
-<turbo-frame id="topbar">
-  <div class="bg-gray-800 text-white text-sm py-1 w-full">
-    <div
-      class="container max-w-[95vw] sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl flex justify-between items-center"
-    >
-      <span>আমাদের ওয়েব সাইটে আপনাকে স্বাগতম</span>
-      <div class="flex space-x-4">
-        <a href="#" class="hover:text-yellow-400"
-          ><i class="fab fa-facebook-f"></i
-        ></a>
-        <a href="#" class="hover:text-yellow-400"
-          ><i class="fab fa-twitter"></i
-        ></a>
-        <a href="#" class="hover:text-yellow-400"
-          ><i class="fab fa-google-plus-g"></i
-        ></a>
-        <a href="#" class="hover:text-yellow-400"
-          ><i class="fab fa-instagram"></i
-        ></a>
-        <a href="#" class="hover:text-yellow-400"
-          ><i class="fab fa-youtube"></i
-        ></a>
+{% load static %}
+
+
+<div class="bg-gray-800 text-white text-sm py-1 w-full">
+  <div class="container mx-auto max-w-7xl px-4 flex justify-between items-center">
+    {% if school_info %}
+    <span>{{ school_info.name }}</span>
+    <div class="flex space-x-4">
+      {% if school_info.facebook_url %}
+      <a href="{{ school_info.facebook_url }}" target="_blank" class="hover:text-yellow-400 transition-all ease-in-out duration-300"><i class="fab fa-facebook-f"></i></a>
+      {% endif %}
+      {% if school_info.instagram_url %}
+      <a href="{{ school_info.instagram_url }}" target="_blank" class="hover:text-yellow-400 transition-all ease-in-out duration-300"><i class="fab fa-instagram"></i></a>
+      {% endif %}
+      {% if school_info.youtube_url %}
+      <a href="{{ school_info.youtube_url }}" target="_blank" class="hover:text-yellow-400 transition-all ease-in-out duration-300"><i class="fab fa-youtube"></i></a>
+      {% endif %}
+      {% if school_info.linkedin_url %}
+      <a href="{{ school_info.linkedin_url }}" target="_blank" class="hover:text-yellow-400 transition-all ease-in-out duration-300"><i class="fab fa-linkedin-in"></i></a>
+      {% endif %}
+    </div>
+    {% else %}
+    <span>আমাদের ওয়েব সাইটে আপনাকে স্বাগতম</span>
+    {% endif %}
+  </div>
+</div>
+
+<div class="bg-white py-4 border-b w-full">
+  <div class="container mx-auto max-w-7xl px-4 flex items-center justify-between">
+    <div class="flex items-center">
+      <a href="{% url 'home' %}" class="flex items-center">
+        {% comment %} {% if school_info.logo %} {% endcomment %}
+        <img src="{{ school_info.logo.url }}" alt="Logo" class="h-12 mr-3" />
+        {% comment %} {% else %}
+        <img src="{% static 'logo.png' %}" alt="Logo" class="h-12 mr-3" />
+        {% endif %} {% endcomment %}
+        <span class="font-bold text-2xl text-[var(--color-primary)]">{{ school_info.name }}</span>
+      </a>
+    </div>
+    <button x-data="{}" @click="$dispatch('open-sidebar', true)" class="md:hidden ml-4 text-gray-700 focus:outline-none" aria-label="Toggle menu">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
+    <div class="hidden md:flex items-center space-x-6">
+      {% if school_info %}
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-mobile-alt text-xl text-[var(--color-primary)]"></i>
+        <div>
+          <p class="text-sm font-semibold text-gray-800">আমাদেরকে কল করুন</p>
+          <p class="text-xs text-gray-600">{{ school_info.phone }}</p>
+        </div>
       </div>
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-at text-xl text-[var(--color-primary)]"></i>
+        <div>
+          <p class="text-sm font-semibold text-gray-800">আমাদেরকে ই-মেইল করুন</p>
+          <p class="text-xs text-gray-600">{{ school_info.email }}</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-map-marked-alt text-xl text-[var(--color-primary)]"></i>
+        <div>
+          <p class="text-sm font-semibold text-gray-800">আমাদের ঠিকানা</p>
+          <p class="text-xs text-gray-600">{{ school_info.address|truncatechars:20 }}</p>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
-</turbo-frame>
-<!-- Main Navbar -->
-<turbo-frame id="main-navbar">
-  <div class="bg-white py-4 border-b w-full">
-    <div
-      class="container max-w-[95vw] sm:max-w-screen md:max-w-screen lg:max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl flex items-center justify-between"
-    >
-      <div class="flex items-center">
-        <img src="/static/logo.png" alt="Logo" class="h-12 mr-2" />
-        <span class="font-bold text-2xl text-red-700">ACADEMIC</span>
-      </div>
-      <!-- Hamburger Icon for Mobile -->
-      <button
-        x-data="{}"
-        @click="$dispatch('open-sidebar', true)"
-        class="md:hidden ml-4 text-gray-700 focus:outline-none transition-transform duration-200"
-        aria-label="Toggle menu"
-      >
-        <svg
-          class="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          ></path>
-        </svg>
-      </button>
-      <!-- Desktop Contact Info -->
-      <div
-        class="hidden md:flex flex-col md:flex-row md:items-center md:space-x-6 w-auto"
-      >
-        <div class="flex flex-row items-center space-x-2 mb-2 md:mb-0">
-          <i class="fas fa-phone-alt text-lg text-gray-700"></i>
-          <span class="text-gray-800">রিসেপশন :</span>
-          <span class="text-gray-700">+ (123) 1000-567-800</span>
-        </div>
-        <div class="flex items-center space-x-2 mb-2 md:mb-0">
-          <i class="fas fa-envelope text-lg text-gray-700"></i>
-          <span class="text-gray-800">ই-মেইল :</span>
-          <span class="text-gray-700">Support@gmail.com</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <i class="fas fa-map-marker-alt text-lg text-gray-700"></i>
-          <span class="text-gray-800">অফিস :</span>
-          <span class="text-gray-700">মিরপুর, ঢাকা - ১২১৬</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</turbo-frame>
-<!-- Navigation Menu -->
-<turbo-frame id="nav-menu">
-  <nav
-    class="bg-[var(--color-primary)] text-white w-full"
-    x-data="{ sidebarOpen: false }"
-    @open-sidebar.window="sidebarOpen = true"
-    @keydown.window.escape="sidebarOpen = false"
-  >
-    <div
-      class="container px-4 max-w-[95vw] sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl flex flex-wrap items-center justify-between mx-auto w-full"
-    >
-      <!-- Desktop Menu -->
-      <!-- Desktop Menu -->
-      <ul
-        class="hidden md:flex flex-row space-x-2 items-center w-full md:w-full justify-center sticky top-0 left-0 right-0 z-50 bg-[var(--color-primary)]"
-      >
-        <li>
-          <a
-            href="{% url 'home' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >প্রচ্ছদ</a
-          >
-        </li>
-        <li>
-          <a
-            href="{% url 'about' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >আমাদের সম্পর্কে</a
-          >
-        </li>
-        <li>
-          <a
-            href="{% url 'administration' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >প্রশাসন</a
-          >
-        </li>
+</div>
+
+<nav class="bg-[var(--color-primary)] text-white w-full" x-data="{ sidebarOpen: false }" @open-sidebar.window="sidebarOpen = true" @keydown.window.escape="sidebarOpen = false">
+  <div class="container mx-auto max-w-7xl px-4 flex items-center justify-center">
+    <ul class="hidden md:flex flex-row space-x-1 items-center">
+        <li><a href="{% url 'home' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300" title="Home"><i class="fas fa-home"></i></a></li>
+        <li><a href="{% url 'about' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">আমাদের সম্পর্কে</a></li>
+        <li><a href="{% url 'administration' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">প্রশাসন</a></li>
+        <li><a href="{% url 'students' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">শিক্ষার্থীদের তথ্য</a></li>
         <li class="relative group">
-          <a
-            href="{% url 'students' %}"
-            class="block py-2 px-4 rounded hover:bg-secondary transition-colors duration-200 flex items-center gap-1"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-          >
-            শিক্ষার্থীদের তথ্য
-          </a>
-        </li>
-        <li class="relative group">
-                <a
-                  href="#"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200 flex items-center gap-1"
-                >
-                  তথ্য
-                  <i class="fas fa-chevron-down text-xs ml-1"></i>
-                </a>
-                <ul
-                  class="absolute top-10 mt-1 bg-gray-100 text-gray-900 rounded shadow-lg hidden group-hover:block min-w-[120px] z-10"
-                >
-                  <li>
-                    <a href="{% url 'routine' %}" turbo-data="true" data-turbo-action="advance" data-turbo-frame="main-content" class="block px-4 py-2 hover:bg-gray-200"
-                      >রুটিন</a
-                    >
-                  </li>
-                  <li>
-                    <a href="{% url 'books' %}" turbo-data="true" data-turbo-action="advance" data-turbo-frame="main-content" class="block px-4 py-2 hover:bg-gray-200"
-                      >বইসমূহ</a
-                    >
-                  </li>
-                </ul>
-              </li>
-        <li>
-          <a
-            href="#"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            >ভর্তি</a
-          >
-        </li>
-        
-        <li>
-          <a
-            href="{% url 'notice_list' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >নোটিশ</a
-          >
-        </li>
-        <li>
-          <a
-            href="{% url 'result_list' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >ফলাফল</a
-          >
-        </li>
-        <li>
-          <a
-            href="#"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            >সাম্প্রতিক খবর</a
-          >
-        </li>
-        <li>
-          <a
-            href="{% url 'gallery_list' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >গ্যালারি</a
-          >
-        </li>
-        <li>
-          <a
-            href="{% url 'information_service' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >তথ্য সেবা</a
-          >
-        </li>
-        <li>
-          <a
-            href="{% url 'contact' %}"
-            class="block py-4 px-4 rounded hover:bg-secondary transition-colors duration-200"
-            data-turbo-frame="main-content"
-            data-turbo="true"
-            data-turbo-action="advance"
-            >যোগাযোগ</a
-          >
-        </li>
-      </ul>
-      <!-- Mobile Sidebar (hidden on md+) -->
-      <div
-        x-show="sidebarOpen"
-        class="fixed inset-0 z-40 flex md:hidden justify-end"
-        style="display: none"
-      >
-        <!-- Overlay -->
-        <div
-          class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
-          @click="sidebarOpen = false"
-        ></div>
-        <!-- Sidebar -->
-        <aside
-          class="w-80 max-w-full h-full bg-white text-gray-900 shadow-xl transform transition-transform duration-300 ease-in-out translate-x-full fixed right-0 top-0 flex flex-col justify-between"
-          :class="{ 'translate-x-0': sidebarOpen, 'translate-x-full': !sidebarOpen }"
-          @click.away="sidebarOpen = false"
-        >
-          <!-- Close Button -->
-          <button
-            class="absolute top-4 right-4 text-gray-700 hover:text-red-600 text-2xl focus:outline-none"
-            @click="sidebarOpen = false"
-            aria-label="Close sidebar"
-          >
-            <svg
-              class="w-7 h-7"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-          <!-- Menu Items -->
-          <nav class="flex flex-col h-full pt-16 pb-6 px-6 overflow-y-auto">
-            <ul class="flex-1 flex flex-col gap-2">
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >প্রচ্ছদ</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'about' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >আমাদের সম্পর্কে</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'administration' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >প্রশাসন</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'students' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >শিক্ষার্থীদের তথ্য</a
-                >
-              </li>
-              <li class="relative group">
-                <a
-                  href="#"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200 flex items-center gap-1"
-                >
-                  তথ্য
-                  <i class="fas fa-chevron-down text-xs ml-1"></i>
-                </a>
-                <ul
-                  class="absolute top-10 mt-1 bg-gray-100 text-gray-900 rounded shadow-lg hidden group-hover:block min-w-[120px] z-10"
-                >
-                  <li>
-                    <a href="{% url 'routine' %}" class="block px-4 py-2 hover:bg-gray-200"
-                      >রুটিন</a
-                    >
-                  </li>
-                  <li>
-                    <a href="{% url 'routine' %}" class="block px-4 py-2 hover:bg-gray-200"
-                      >বইসমূহ</a
-                    >
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >ভর্তি</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'contact' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >যোগাযোগ</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'notice_list' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  data-turbo-frame="main-content"
-                  data-turbo="true"
-                  data-turbo-action="advance"
-                  >নোটিশ</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'result_list' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  data-turbo-frame="main-content"
-                  data-turbo="true"
-                  data-turbo-action="advance"
-                  >ফলাফল</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >সাম্প্রতিক খবর</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'gallery_list' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  data-turbo-frame="main-content"
-                  data-turbo="true"
-                  data-turbo-action="advance"
-                  >গ্যালারি</a
-                >
-              </li>
-              <li>
-                <a
-                  href="{% url 'information_service' %}"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  data-turbo-frame="main-content"
-                  data-turbo="true"
-                  data-turbo-action="advance"
-                  >তথ্য সেবা</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >বিভিন্ন তথ্য</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors duration-200"
-                  >যোগাযোগ</a
-                >
-              </li>
+            <a href="#" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300 flex items-center gap-1">ডাউনলোডস<i class="fas fa-chevron-down text-xs ml-1"></i></a>
+            <ul class="absolute top-full mt-0 bg-white text-gray-900 rounded-b shadow-lg hidden group-hover:block min-w-[150px] z-10">
+              <li><a href="{% url 'routine' %}" class="block px-4 py-2 hover:bg-gray-200 transition-all ease-in-out duration-300">রুটিন</a></li>
+              <li><a href="{% url 'books' %}" class="block px-4 py-2 hover:bg-gray-200 transition-all ease-in-out duration-300">বইসমূহ</a></li>
             </ul>
-            <!-- Contact Info at Bottom -->
-            <div
-              class="mt-8 border-t pt-6 flex flex-col gap-4 text-sm text-gray-700"
-            >
-              <div class="flex items-center gap-2">
-                <i
-                  class="fas fa-phone-alt text-lg text-[var(--color-primary)]"
-                ></i>
-                <span class="font-semibold">রিসেপশন :</span>
-                <span>+ (123) 1000-567-800</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <i
-                  class="fas fa-envelope text-lg text-[var(--color-primary)]"
-                ></i>
-                <span class="font-semibold">ই-মেইল :</span>
-                <span>Support@gmail.com</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <i
-                  class="fas fa-map-marker-alt text-lg text-[var(--color-primary)]"
-                ></i>
-                <span class="font-semibold">অফিস :</span>
-                <span>মিরপুর, ঢাকা - ১২১৬</span>
-              </div>
-            </div>
-          </nav>
-        </aside>
-      </div>
+        </li>
+        <li><a href="#" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">ভর্তি</a></li>
+        <li><a href="{% url 'notice_list' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">নোটিশ</a></li>
+        <li><a href="{% url 'result_list' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">ফলাফল</a></li>
+        <li><a href="#" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">সাম্প্রতিক খবর</a></li>
+        <li><a href="{% url 'gallery_list' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">গ্যালারি</a></li>
+        <li><a href="{% url 'contact' %}" class="block py-4 px-3 rounded hover:bg-[var(--color-secondary)] transition-all ease-in-out duration-300">যোগাযোগ</a></li>
+    </ul>
+
+    <div x-show="sidebarOpen" class="fixed inset-0 z-40 flex md:hidden justify-end" style="display: none">
+      <div class="fixed inset-0 bg-black bg-opacity-50" @click="sidebarOpen = false"></div>
+      <aside class="w-80 max-w-full h-full bg-white text-gray-900 shadow-xl transform transition-transform duration-300 ease-in-out translate-x-full fixed right-0 top-0 flex flex-col justify-between" :class="{ 'translate-x-0': sidebarOpen, 'translate-x-full': !sidebarOpen }" @click.away="sidebarOpen = false">
+        <button class="absolute top-4 right-4 text-gray-700 hover:text-red-600 text-2xl" @click="sidebarOpen = false" aria-label="Close sidebar"><i class="fas fa-times"></i></button>
+        <nav class="flex flex-col h-full pt-16 pb-6 px-6 overflow-y-auto">
+          <ul class="flex-1 flex flex-col gap-2">
+              <li><a href="{% url 'home' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300"><i class="fas fa-home mr-2"></i>প্রচ্ছদ</a></li>
+              <li><a href="{% url 'about' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">আমাদের সম্পর্কে</a></li>
+              <li><a href="{% url 'administration' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">প্রশাসন</a></li>
+              <li><a href="{% url 'students' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">শিক্ষার্থীদের তথ্য</a></li>
+              <li x-data="{ open: false }">
+                  <button @click="open = !open" class="w-full text-left flex items-center justify-between py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">
+                    <span>ডাউনলোডস</span>
+                    <i class="fas fa-chevron-down text-xs ml-1 transition-transform" :class="{'rotate-180': open}"></i>
+                  </button>
+                  <ul x-show="open" class="pl-4 mt-1" style="display: none;">
+                    <li><a href="{% url 'routine' %}" class="block px-4 py-2 hover:bg-gray-200 rounded-lg">রুটিন</a></li>
+                    <li><a href="{% url 'books' %}" class="block px-4 py-2 hover:bg-gray-200 rounded-lg">বইসমূহ</a></li>
+                  </ul>
+              </li>
+              <li><a href="#" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">ভর্তি</a></li>
+              <li><a href="{% url 'notice_list' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">নোটিশ</a></li>
+              <li><a href="{% url 'result_list' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">ফলাফল</a></li>
+              <li><a href="#" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">সাম্প্রতিক খবর</a></li>
+              <li><a href="{% url 'gallery_list' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">গ্যালারি</a></li>
+              <li><a href="{% url 'contact' %}" class="block py-2 px-4 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-all ease-in-out duration-300">যোগাযোগ</a></li>
+          </ul>
+        </nav>
+      </aside>
     </div>
-  </nav>
-</turbo-frame>
-<!-- Note: For icons, use Font Awesome CDN in base.html or replace with SVGs. -->
-<!-- Note: Make sure Alpine.js is included in your base.html for x-data and x-show to work. -->
+  </div>
+</nav>

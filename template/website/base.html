@@ -1,33 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SchoolProject{% endblock %}</title>
+
+    <title>{% if school_info %}{{ school_info.name }}{% else %}School Website{% endif %}</title>
+    {% if school_info.favicon %}
+        <link rel="icon" href="{{ school_info.favicon.url }}">
+    {% endif %}
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
-    <!-- Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- htmx CDN -->
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <!-- Alpine.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <!-- Turbo.js CDN -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@latest/dist/turbo.es2017-esm.min.js"></script>
-    <!-- Font Awesome CDN for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- django-browser-reload -->
+<!-- Font Awesome CDN for icons -->
+
+    <!-- <style>
+        :root {
+            --color-primary: #880019; /* A deep red color */
+            --color-secondary: #ad0020;
+        }
+    </style> -->
+
     {% if debug %}
     <script defer src="{% url 'django_browser_reload:javascript' %}"></script>
     {% endif %}
+
     {% block head %}{% endblock %}
 </head>
-<body>
-    {% include 'website/include/navbar.html' %}
-    <turbo-frame id="main-content">
-        {% block content %}{% endblock %}
-    </turbo-frame>
-    {% include 'website/include/footer.html' %}
-</body>
+<body class="bg-gray-100">
 
-</html> 
+    <header class="sticky top-0 z-50 bg-white shadow-md">
+        {% include 'website/include/navbar.html' %}
+    </header>
+
+    <main>
+        <turbo-frame id="main-content">
+            {% block content %}{% endblock %}
+        </turbo-frame>
+    </main>
+
+    {% include 'website/include/footer.html' %}
+
+</body>
+</html>

@@ -5,25 +5,31 @@ from django.core.validators import FileExtensionValidator
 class TimeStampModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         abstract = True
 
 class SchoolInfo(TimeStampModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name="School Name")
     address = models.TextField()
     email = models.EmailField()
     phone = models.CharField(max_length=20)
-    logo = models.ImageField(upload_to='school/')
+    logo = models.ImageField(upload_to='school/', help_text="Upload the main logo for the navbar.")
+    favicon = models.ImageField(upload_to='school/', blank=True, null=True, help_text="Upload a .ico or .png file for the browser tab icon.")
     established_year = models.CharField(max_length=4)
     description = models.TextField()
     history = models.TextField()
     vision = models.TextField()
     mission = models.TextField()
-    
+    # New Social Link Fields
+    facebook_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="Facebook URL")
+    instagram_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="Instagram URL")
+    youtube_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="YouTube URL")
+    linkedin_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="LinkedIn URL")
+
     class Meta:
         verbose_name_plural = 'School Information'
-    
+
     def __str__(self):
         return self.name
 
@@ -33,12 +39,12 @@ class Department(TimeStampModel):
     icon = models.CharField(max_length=50)  # FontAwesome icon class
     description = models.TextField(blank=True)
     slug = models.SlugField(unique=True, blank=True)
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name_en)
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return self.name
 
@@ -47,11 +53,11 @@ class Class(TimeStampModel):
     name_en = models.CharField(max_length=50)  # English name
     numeric_value = models.IntegerField()  # For sorting (e.g., 6,7,8)
     description = models.TextField(blank=True)
-    
+
     class Meta:
         verbose_name_plural = 'Classes'
         ordering = ['numeric_value']
-    
+
     def __str__(self):
         return self.name
 
@@ -74,7 +80,7 @@ class Teacher(TimeStampModel):
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     is_special_officer = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return f"{self.name} - {self.position}"
 
@@ -88,7 +94,7 @@ class Student(TimeStampModel):
     guardian_name = models.CharField(max_length=100)
     guardian_phone = models.CharField(max_length=20)
     address = models.TextField()
-    
+
     def __str__(self):
         return f"{self.name} - {self.class_name} ({self.roll_number})"
 
@@ -99,7 +105,7 @@ class Notice(TimeStampModel):
         ('admission', 'Admission'),
         ('routine', 'Routine')
     )
-    
+
     title = models.CharField(max_length=200)
     type = models.CharField(max_length=20, choices=NOTICE_TYPES)
     date = models.DateField()
@@ -108,7 +114,7 @@ class Notice(TimeStampModel):
         validators=[FileExtensionValidator(['pdf'])]
     )
     is_active = models.BooleanField(default=True)
-    
+
     def __str__(self):
         return f"{self.get_type_display()} - {self.title}"
 
@@ -119,16 +125,16 @@ class Gallery(TimeStampModel):
         ('student', 'Student'),
         ('teacher', 'Teacher')
     )
-    
+
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to='gallery/')
     category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True)
     is_slider = models.BooleanField(default=False)
-    
+
     class Meta:
         verbose_name_plural = 'Galleries'
-    
+
     def __str__(self):
         return self.title
 
@@ -179,18 +185,15 @@ class ImportantLink(TimeStampModel):
     def __str__(self):
         return self.title
 
-
-
-
 class RoutineType(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return self.name
 
@@ -199,7 +202,7 @@ class Routine(models.Model):
         ('class', 'Class Routine'),
         ('exam', 'Exam Routine'),
     )
-    
+
     title = models.CharField(max_length=200)
     category = models.CharField(max_length=20, choices=ROUTINE_CATEGORIES)
     routine_type = models.ForeignKey(RoutineType, on_delete=models.SET_NULL, null=True, blank=True)
@@ -212,11 +215,9 @@ class Routine(models.Model):
 
     class Meta:
         ordering = ['-updated_at']
-    
+
     def __str__(self):
         return f"{self.get_category_display()} - {self.title}"
-
-
 
 class Book(models.Model):
     title = models.CharField(max_length=200)
@@ -229,10 +230,9 @@ class Book(models.Model):
 
     class Meta:
         ordering = ['-updated_at']
-    
+
     def __str__(self):
         return self.title
-
 
 class Result(TimeStampModel):
     title = models.CharField(max_length=255)
@@ -251,7 +251,6 @@ class Result(TimeStampModel):
     def __str__(self):
         return self.title
 
-
 class Video(TimeStampModel):
     title = models.CharField(max_length=255)
     youtube_id = models.CharField(max_length=50, help_text="The YouTube video ID (e.g., dQw4w9WgXcQ)")
@@ -265,19 +264,17 @@ class Video(TimeStampModel):
     def __str__(self):
         return self.title
 
-
 class InformationService(TimeStampModel):
     """Main model for Information Service Center"""
     title = models.CharField(max_length=200)
     description = models.TextField()
     is_active = models.BooleanField(default=True)
-    
+
     class Meta:
         verbose_name_plural = "Information Service"
-    
+
     def __str__(self):
         return self.title
-
 
 class InformationSlider(TimeStampModel):
     """Sliding photo gallery for information service"""
@@ -286,14 +283,13 @@ class InformationSlider(TimeStampModel):
     description = models.TextField(blank=True)
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name_plural = "Information Sliders"
-    
+
     def __str__(self):
         return self.title
-
 
 class FacilityInfo(TimeStampModel):
     """School facilities information"""
@@ -304,7 +300,7 @@ class FacilityInfo(TimeStampModel):
         ('multimedia', 'মাল্টিমিডিয়া ক্লাসরুম'),
         ('transport', 'যানবাহন সুবিধা'),
     )
-    
+
     facility_type = models.CharField(max_length=20, choices=FACILITY_TYPES)
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -314,14 +310,13 @@ class FacilityInfo(TimeStampModel):
     image = models.ImageField(upload_to='facilities/', blank=True)
     is_active = models.BooleanField(default=True)
     order = models.IntegerField(default=0)
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name_plural = "Facility Information"
-    
+
     def __str__(self):
         return f"{self.get_facility_type_display()} - {self.title}"
-
 
 class FacultyInfo(TimeStampModel):
     """Faculty information for information service"""
@@ -335,11 +330,11 @@ class FacultyInfo(TimeStampModel):
     photo = models.ImageField(upload_to='faculty/', blank=True)
     is_active = models.BooleanField(default=True)
     order = models.IntegerField(default=0)
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name_plural = "Faculty Information"
-    
+
     def __str__(self):
         return f"{self.name} - {self.position}"
 
@@ -376,7 +371,6 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"{self.title} - {self.name} ({self.phone})"
 
-
 class News(TimeStampModel):
     """News items for the home page"""
     title = models.CharField(max_length=200, verbose_name='শিরোনাম')
@@ -393,7 +387,6 @@ class News(TimeStampModel):
     def __str__(self):
         return self.title
 
-
 class NewsLink(TimeStampModel):
     """News and Links section for home page"""
     title = models.CharField(max_length=200, verbose_name='শিরোনাম', default='সংবাদ/প্রয়োজনীয় লিংক')
@@ -406,20 +399,18 @@ class NewsLink(TimeStampModel):
     def __str__(self):
         return self.title
 
-
 # About Page Models
 class AboutPage(TimeStampModel):
     """Main about page configuration"""
     title = models.CharField(max_length=200, default='আমাদের সম্পর্কে (About Us)', verbose_name='পৃষ্ঠার শিরোনাম')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
-    
+
     class Meta:
         verbose_name = 'আমাদের সম্পর্কে পৃষ্ঠা'
         verbose_name_plural = 'আমাদের সম্পর্কে পৃষ্ঠা'
-    
+
     def __str__(self):
         return self.title
-
 
 class SchoolHistory(TimeStampModel):
     """School history section"""
@@ -427,15 +418,14 @@ class SchoolHistory(TimeStampModel):
     content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'প্রতিষ্ঠানের ইতিহাস'
         verbose_name_plural = 'প্রতিষ্ঠানের ইতিহাস'
-    
+
     def __str__(self):
         return self.title
-
 
 class SchoolBriefInfo(TimeStampModel):
     """School brief information with statistics"""
@@ -447,15 +437,14 @@ class SchoolBriefInfo(TimeStampModel):
     students_count = models.CharField(max_length=20, default='১০০০+', verbose_name='শিক্ষার্থীর সংখ্যা')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'সংক্ষিপ্ত তথ্য'
         verbose_name_plural = 'সংক্ষিপ্ত তথ্য'
-    
+
     def __str__(self):
         return self.title
-
 
 class AboutPrincipalMessage(TimeStampModel):
     """Principal message for about page"""
@@ -465,15 +454,14 @@ class AboutPrincipalMessage(TimeStampModel):
     photo = models.ImageField(upload_to='about/principal/', blank=True, verbose_name='ছবি')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'অধ্যক্ষের বাণী (আমাদের সম্পর্কে)'
         verbose_name_plural = 'অধ্যক্ষের বাণী (আমাদের সম্পর্কে)'
-    
+
     def __str__(self):
         return f"{self.title} - {self.name}"
-
 
 class SchoolApproval(TimeStampModel):
     """School approval and recognition information"""
@@ -481,15 +469,14 @@ class SchoolApproval(TimeStampModel):
     content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'অনুমোদন'
         verbose_name_plural = 'অনুমোদন'
-    
+
     def __str__(self):
         return self.title
-
 
 class SchoolBranch(TimeStampModel):
     """School branches information"""
@@ -498,15 +485,14 @@ class SchoolBranch(TimeStampModel):
     established_year = models.CharField(max_length=20, verbose_name='প্রতিষ্ঠাকাল')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'শাখা'
         verbose_name_plural = 'শাখাসমূহ'
-    
+
     def __str__(self):
         return f"{self.name} - {self.location}"
-
 
 class SchoolRecognition(TimeStampModel):
     """School recognition and awards"""
@@ -527,15 +513,14 @@ class SchoolRecognition(TimeStampModel):
     )
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'স্বীকৃতি'
         verbose_name_plural = 'স্বীকৃতি'
-    
+
     def __str__(self):
         return self.title
-
 
 class SchoolAims(TimeStampModel):
     """School aims and objectives"""
@@ -543,15 +528,14 @@ class SchoolAims(TimeStampModel):
     content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'লক্ষ্য ও উদ্দেশ্য'
         verbose_name_plural = 'লক্ষ্য ও উদ্দেশ্য'
-    
+
     def __str__(self):
         return self.title
-
 
 class AimPoint(TimeStampModel):
     """Individual aim points"""
@@ -559,15 +543,14 @@ class AimPoint(TimeStampModel):
     point = models.CharField(max_length=500, verbose_name='লক্ষ্য পয়েন্ট')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'লক্ষ্য পয়েন্ট'
         verbose_name_plural = 'লক্ষ্য পয়েন্টসমূহ'
-    
+
     def __str__(self):
         return self.point
-
 
 class AboutNewsItem(TimeStampModel):
     """News items for about page"""
@@ -576,15 +559,14 @@ class AboutNewsItem(TimeStampModel):
     link = models.URLField(verbose_name='লিঙ্ক')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'সংবাদ আইটেম'
         verbose_name_plural = 'সংবাদ আইটেমসমূহ'
-    
+
     def __str__(self):
         return self.title
-
 
 class AboutLink(TimeStampModel):
     """Important links for about page"""
@@ -592,13 +574,11 @@ class AboutLink(TimeStampModel):
     url = models.URLField(verbose_name='লিঙ্ক')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
-    
+
     class Meta:
         ordering = ['order', '-created_at']
         verbose_name = 'গুরুত্বপূর্ণ লিঙ্ক'
         verbose_name_plural = 'গুরুত্বপূর্ণ লিঙ্কসমূহ'
-    
+
     def __str__(self):
         return self.title
-
-
