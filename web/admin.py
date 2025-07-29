@@ -25,8 +25,9 @@ class SchoolInfoAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'phone', 'established_year')
     
     fieldsets = (
-        ('Basic Information', {'fields': ('name', 'logo', 'established_year')}),
+        ('Basic Information', {'fields': ('name', 'logo', 'favicon', 'established_year')}),
         ('Contact Details', {'fields': ('address', 'email', 'phone')}),
+        ('Social Media Links', {'fields': ('facebook_url', 'instagram_url', 'youtube_url', 'linkedin_url')}),
         ('School Identity', {'fields': ('description', 'history', 'vision', 'mission')}),
     )
     
@@ -106,7 +107,7 @@ class GalleryAdmin(admin.ModelAdmin):
 @admin.register(RoutineType)
 class RoutineTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
-    search_fields = ('name',) # <-- THIS LINE IS THE FIX
+    search_fields = ('name',)
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Routine)
@@ -142,19 +143,27 @@ class VideoAdmin(admin.ModelAdmin):
 
 # --- Leadership and Messages ---
 
-class PrincipalMessageInline(admin.StackedInline):
-    model = PrincipalMessage
-    extra = 1
-    fieldsets = (
-        (None, {'fields': ('name', 'message', 'photo', 'is_active', 'order')}),
-    )
-
 @admin.register(PrincipalRole)
 class PrincipalRoleAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active', 'order')
     list_editable = ('is_active', 'order')
-    inlines = [PrincipalMessageInline]
+    search_fields = ('name',) # <-- THE FIX IS HERE
 
+@admin.register(PrincipalMessage)
+class PrincipalMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'role', 'is_active', 'show_on_home_page')
+    list_filter = ('role', 'is_active', 'show_on_home_page')
+    list_editable = ('is_active', 'show_on_home_page')
+    search_fields = ('name', 'message')
+    autocomplete_fields = ('role',)
+    fieldsets = (
+        ("Message Details", {
+            "fields": ('name', 'role', 'message', 'photo')
+        }),
+        ("Display Options", {
+            "fields": ('is_active', 'show_on_home_page', 'order')
+        }),
+    )
 
 # --- Site Configuration & Links ---
 
@@ -192,7 +201,6 @@ class ContactMessageAdmin(admin.ModelAdmin):
 
 # --- About Page Content Management ---
 
-# Use inlines for a better experience
 class AimPointInline(admin.TabularInline):
     model = AimPoint
     extra = 1
@@ -202,7 +210,6 @@ class SchoolAimsAdmin(admin.ModelAdmin):
     list_display = ('title', 'is_active', 'order')
     inlines = [AimPointInline]
 
-# Group other About Page models
 @admin.register(AboutPage)
 class AboutPageAdmin(admin.ModelAdmin):
     list_display = ('title', 'is_active')

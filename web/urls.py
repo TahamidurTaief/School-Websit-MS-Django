@@ -1,3 +1,5 @@
+# web/urls.py
+
 from django.urls import path
 from .views import *
 from django.conf import settings
@@ -7,6 +9,11 @@ urlpatterns = [
     path('', home, name='home'),
     path('about/', about, name='about'),
     path('administration/', administration, name='administration'),
+    
+    # --- RENAMED & UNIVERSAL DOWNLOAD URL ---
+    path('download/important-file/<int:pk>/', download_notice_file, name='download_notice_file'),
+
+    # Other paths...
     path('students/', students, name='students'),
     path('filter/', filter_students, name='filter_students'),
     path('books/', books, name='books'),
@@ -28,5 +35,5 @@ urlpatterns = [
     path('contact/submit/', submit_contact_message, name='submit_contact_message'),
 ]
 
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

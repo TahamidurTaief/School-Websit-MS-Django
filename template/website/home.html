@@ -1,12 +1,46 @@
 {% extends 'website/base.html' %}
+{% load static %}
 
-{% block title %}Home | SchoolProject{% endblock %}
+{% block title %}Home | {{ school_info.name|default:"School Project" }}{% endblock %}
 
 {% block content %}
-{% include 'component/common/slider.html' with slider_images=slider_images %}
-{% include 'component/common/school_info.html' with school_info=school_info %}
-{% include 'component/common/principal_message.html' with principal_messages=principal_messages %}
-{% include 'component/common/important_info.html' with notices=notices results=results admissions=admissions routines=routines %}
-{% include 'component/common/event_gallery.html' with event_images=event_images %}
-{% include 'component/common/important_links.html' with important_links=important_links %}
+
+    {# The component for your hero slider #}
+    {% if slider_images %}
+        {% include 'component/home/Hero.html' with images=slider_images %}
+    {% endif %}
+
+    {# The component for school history #}
+    {% if school_info.history %}
+        {% include 'component/home/history.html' with history=school_info.history %}
+    {% endif %}
+
+    {# The component for the principal's message #}
+    {% if principal_message %}
+        {% include 'component/home/principal_message.html' with principal_message=principal_message %}
+    {% endif %}
+
+    {# The component for important info tabs #}
+    {% if notices or results or admissions or routines %}
+        {% include 'component/home/important_info.html' with notices=notices results=results admissions=admissions routines=routines %}
+    {% endif %}
+
+    {# The component for recent events - The line I missed #}
+    {% if event_images %}
+        {% include 'component/common/event_gallery.html' with event_images=event_images %}
+    {% endif %}
+
+    {# The component for brief information about the school (Corrected variable) #}
+    {% if brief_info %}
+        {% include 'component/about/brief_info.html' with brief_info=brief_info %}
+    {% endif %}
+
+    {# The component for the photo gallery #}
+    {% if event_images %}
+        {% include 'component/home/gallery.html' with gallery_images=event_images %}
+    {% endif %}
+
+    {# The component for important links (Preserved as commented out, per your file) #}
+    {# {% include 'component/common/important_links.html' with important_links=important_links %} #}
+
 {% endblock %}

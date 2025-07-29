@@ -1,5 +1,7 @@
+# web/views.py
+
 from django.http import FileResponse, HttpResponseNotFound, HttpResponseServerError, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 import json
 from .models import *
 from urllib.parse import quote
@@ -8,43 +10,89 @@ from django.views.decorators.http import require_POST
 from django.utils.translation import gettext as _
 import os
 from .models import Teacher
+from django.urls import reverse
+
+
 
 
 def home(request):
-    # Slider images (only with actual images)
     slider_images = Gallery.objects.filter(is_slider=True).exclude(image='').order_by('created_at')
-    # School info (brief/history)
-    school_info = SchoolInfo.objects.first()
-    # All active principal/head/vice messages (with their roles)
-    principal_messages = PrincipalMessage.objects.filter(is_active=True).select_related('role').order_by('order', '-created_at')
-    # Notices, Results, Admission, Routine (latest 5 each)
+    brief_info_obj = SchoolBriefInfo.objects.filter(is_active=True).first()
+    principal_message = PrincipalMessage.objects.filter(
+        is_active=True, 
+        show_on_home_page=True
+    ).select_related('role').first()
+
+    # Data Fetching for Important Info
     notices = Notice.objects.filter(type='notice', is_active=True).order_by('-date')[:5]
     results = Notice.objects.filter(type='result', is_active=True).order_by('-date')[:5]
     admissions = Notice.objects.filter(type='admission', is_active=True).order_by('-date')[:5]
     routines = Notice.objects.filter(type='routine', is_active=True).order_by('-date')[:5]
-    # Recent event images (latest 6, only with actual images)
+    
+    def format_notice_data(queryset, icon_class):
+        return [
+            {
+                'icon': icon_class,
+                'title': item.title,
+                'date': item.date.strftime('%d %b, %Y'),
+                'download_url': reverse('download_notice_file', kwargs={'pk': item.pk})
+            }
+            for item in queryset
+        ]
+
+    important_info_data = {
+        'notice': format_notice_data(notices, 'fa-bell'),
+        'results': format_notice_data(results, 'fa-chart-bar'),
+        'admission': format_notice_data(admissions, 'fa-user-plus'),
+        'routine': format_notice_data(routines, 'fa-calendar-alt'),
+    }
+    
+    important_info_json = json.dumps(important_info_data)
+
+    brief_info_context = {
+        'title': brief_info_obj.title if brief_info_obj else 'সংক্ষিপ্ত তথ্য',
+        'teachers': brief_info_obj.teachers_count if brief_info_obj else 'N/A',
+        'departments': brief_info_obj.departments_count if brief_info_obj else 'N/A',
+        'classrooms': brief_info_obj.classrooms_count if brief_info_obj else 'N/A',
+        'students': brief_info_obj.students_count if brief_info_obj else 'N/A',
+        'description': brief_info_obj.description if brief_info_obj else 'সংক্ষিপ্ত তথ্যের বিবরণ পাওয়া যায়নি।'
+    }
     event_images = Gallery.objects.filter(category='event').exclude(image='').order_by('-created_at')[:6]
-    # Important links
     important_links = ImportantLink.objects.filter(is_active=True).order_by('order', '-created_at')
-    # News items (latest 5)
     news_items = News.objects.filter(is_active=True).order_by('order', '-created_at')[:5]
-    # News and Links section
     news_links_section = NewsLink.objects.filter(is_active=True).first()
 
     context = {
         'slider_images': slider_images,
-        'school_info': school_info,
-        'principal_messages': principal_messages,
-        'notices': notices,
-        'results': results,
-        'admissions': admissions,
-        'routines': routines,
+        'principal_message': principal_message,
+        'important_info_json': important_info_json,
         'event_images': event_images,
         'important_links': important_links,
         'news_items': news_items,
         'news_links_section': news_links_section,
+        'brief_info': brief_info_context,
     }
     return render(request, 'website/home.html', context)
+
+
+def download_notice_file(request, pk):
+    """
+    Handles the download of ANY file from the Notice model,
+    whether it is a notice, result, routine, or admission file.
+    """
+    item = get_object_or_404(Notice, pk=pk)
+    try:
+        filename = quote(os.path.basename(item.file.name))
+        response = FileResponse(item.file.open('rb'), as_attachment=True, filename=filename)
+        return response
+    except FileNotFoundError:
+        return HttpResponseNotFound("The requested file was not found on the server.")
+    except Exception as e:
+        print(f"Error downloading notice file: {e}")
+        return HttpResponseServerError("An error occurred while trying to download the file.")
+
+
+
 
 
 
@@ -285,8 +333,6 @@ def routine(request):
     }
     return render(request, 'website/routine.html', context)
 
-
-from django.http import JsonResponse
 
 def filter_routines(request):
     routine_type = request.GET.get('type', 'class')

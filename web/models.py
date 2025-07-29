@@ -138,6 +138,8 @@ class Gallery(TimeStampModel):
     def __str__(self):
         return self.title
 
+        
+
 class PrincipalRole(TimeStampModel):
     name = models.CharField(max_length=100, verbose_name='Role Name')
     is_active = models.BooleanField(default=True, verbose_name='Active')
@@ -150,6 +152,8 @@ class PrincipalRole(TimeStampModel):
 
     def __str__(self):
         return self.name
+    
+
 
 class PrincipalMessage(TimeStampModel):
     name = models.CharField(max_length=100)
@@ -158,8 +162,17 @@ class PrincipalMessage(TimeStampModel):
     photo = models.ImageField(upload_to='principal/', blank=True)
     is_active = models.BooleanField(default=True)
     order = models.IntegerField(default=0)
+    show_on_home_page = models.BooleanField(
+        default=False,
+        verbose_name="Show on home page",
+        help_text="Check this box to feature this message on the home page. Only one can be selected."
+    )
 
     def save(self, *args, **kwargs):
+        # If this message is being set to show on the home page
+        if self.show_on_home_page:
+            # Unset any other message that might be currently featured
+            PrincipalMessage.objects.filter(show_on_home_page=True).exclude(pk=self.pk).update(show_on_home_page=False)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -169,6 +182,9 @@ class PrincipalMessage(TimeStampModel):
 
     def __str__(self):
         return f"{self.role} - {self.name}" if self.role else self.name
+    
+
+
 
 class ImportantLink(TimeStampModel):
     title = models.CharField(max_length=200, verbose_name='শিরোনাম')
