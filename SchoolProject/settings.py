@@ -32,6 +32,9 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
+    # 'unfold.basetheme',
+    # 'unfold.admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -135,3 +138,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+UNFOLD = {
+    "SITE_TITLE": "School Administration",
+    "SITE_HEADER": "School Admin Panel",
+    "SITE_URL": "/",
+    # "THEME": "dark",  # You can switch to "light"
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+    },
+}
