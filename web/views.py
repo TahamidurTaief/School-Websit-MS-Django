@@ -651,3 +651,22 @@ def submit_contact_message(request):
         message=message
     )
     return JsonResponse({'success': True, 'message': 'আপনার বার্তা সফলভাবে পাঠানো হয়েছে!'}, status=201)
+
+
+
+
+# --- NEW DEDICATED FOOTER VIEW ---
+def footer_view(request):
+    """
+    This view fetches all the data needed for the footer component.
+    """
+    # The school_info object is already available everywhere via context processor,
+    # but fetching it here ensures the footer can be loaded independently if needed.
+    school_info = SchoolInfo.objects.first()
+    important_links = ImportantLink.objects.filter(is_active=True).order_by('order')[:5]
+
+    context = {
+        'school_info': school_info,
+        'footer_links': important_links,
+    }
+    return render(request, 'website/include/footer.html', context)

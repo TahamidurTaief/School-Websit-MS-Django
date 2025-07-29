@@ -33,6 +33,8 @@ urlpatterns = [
     path('filter-facilities/', filter_facilities, name='filter_facilities'),
     path('contact/', contact, name='contact'),
     path('contact/submit/', submit_contact_message, name='submit_contact_message'),
+
+    path('footer/', footer_view, name='footer'),
 ]
 
 if settings.DEBUG:

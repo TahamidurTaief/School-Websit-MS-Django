@@ -44,7 +44,11 @@
         </turbo-frame>
     </main>
 
-    {% include 'website/include/footer.html' %}
+    <div hx-get="{% url 'footer' %}" hx-trigger="load" hx-swap="outerHTML">
+        <!-- Placeholder while the footer loads -->
+        <div class="text-center p-4 bg-gray-800 text-white">Loading Footer...</div>
+    </div>
+
 
 </body>
 </html>
