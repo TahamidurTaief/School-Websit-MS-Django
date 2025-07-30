@@ -17,15 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@latest/dist/turbo.es2017-esm.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<!-- Font Awesome CDN for icons -->
-
-    <!-- <style>
-        :root {
-            --color-primary: #880019; /* A deep red color */
-            --color-secondary: #ad0020;
-        }
-    </style> -->
-
+    
     {% if debug %}
     <script defer src="{% url 'django_browser_reload:javascript' %}"></script>
     {% endif %}
@@ -44,11 +36,11 @@
         </turbo-frame>
     </main>
 
-    <div hx-get="{% url 'footer' %}" hx-trigger="load" hx-swap="outerHTML">
-        <!-- Placeholder while the footer loads -->
-        <div class="text-center p-4 bg-gray-800 text-white">Loading Footer...</div>
+    <div id="page-footer" data-turbo-permanent>
+        <div hx-get="{% url 'footer' %}" hx-trigger="load" hx-swap="outerHTML">
+            <div class="text-center p-4 bg-gray-800 text-white">Loading Footer...</div>
+        </div>
     </div>
-
 
 </body>
 </html>

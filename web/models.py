@@ -118,6 +118,19 @@ class Notice(TimeStampModel):
     def __str__(self):
         return f"{self.get_type_display()} - {self.title}"
 
+
+class Slider(models.Model):
+    image = models.ImageField(upload_to='sliders/')
+    title = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name_plural = 'Sliders'
+        ordering = ['-created_at']
+    def __str__(self):
+        return self.title if self.title else f"Slider {self.id}"
+
 class Gallery(TimeStampModel):
     CATEGORIES = (
         ('school', 'School'),

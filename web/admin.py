@@ -7,14 +7,7 @@ from django.utils.html import format_html
 from unfold.admin import ModelAdmin
 from import_export.admin import ImportExportModelAdmin
 
-from .models import (
-    SchoolInfo, Department, Class, Teacher, Student, Notice, Gallery,
-    PrincipalRole, PrincipalMessage, ImportantLink, RoutineType, Routine,
-    Book, Result, Video, InformationService, InformationSlider, FacilityInfo,
-    FacultyInfo, ContactInfo, ContactMessage, News, NewsLink, AboutPage,
-    SchoolHistory, SchoolBriefInfo, AboutPrincipalMessage, SchoolApproval,
-    SchoolBranch, SchoolRecognition, SchoolAims, AimPoint, AboutNewsItem, AboutLink
-)
+from .models import *
 
 # --- COMBINED ADMIN CLASS FOR UNFOLD + IMPORT/EXPORT ---
 # All your classes will inherit from this for a consistent look and functionality.
@@ -85,6 +78,32 @@ class NoticeAdmin(CustomModelAdmin):
     list_filter = ('type', 'is_active', 'date')
     search_fields = ('title',)
     list_editable = ('is_active',)
+
+@admin.register(Slider)
+class SliderAdmin(CustomModelAdmin):
+    """
+    Admin configuration for the Slider model.
+    """
+    list_display = ('image_thumbnail', 'title', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('title',)
+    list_editable = ('is_active', 'title')
+    ordering = ('-created_at',)
+    
+    readonly_fields = ('image_thumbnail',)
+
+    def image_thumbnail(self, obj):
+        """
+        Creates an HTML image tag for the admin list/detail view.
+        """
+        if obj.image:
+            return format_html('<img src="{}" style="max-width: 200px; max-height: 100px;" />', obj.image.url)
+        return "No Image Uploaded"
+    
+    image_thumbnail.short_description = 'Image Preview'
+
+
+
 
 @admin.register(Gallery)
 class GalleryAdmin(CustomModelAdmin):

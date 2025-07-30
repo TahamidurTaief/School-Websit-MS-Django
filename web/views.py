@@ -16,7 +16,7 @@ from django.urls import reverse
 
 
 def home(request):
-    slider_images = Gallery.objects.filter(is_slider=True).exclude(image='').order_by('created_at')
+    slider_images = Slider.objects.filter(is_active=True).exclude(image='').order_by('-created_at')
     brief_info_obj = SchoolBriefInfo.objects.filter(is_active=True).first()
     principal_message = PrincipalMessage.objects.filter(
         is_active=True, 
@@ -97,6 +97,7 @@ def download_notice_file(request, pk):
 
 
 def administration(request):
+    slider_images = Slider.objects.filter(is_active=True).exclude(image='').order_by('-created_at')
     special_officers = Teacher.objects.filter(category='special_officer').order_by('id')
     teachers = Teacher.objects.filter(category='teacher').order_by('id')
     management_board = Teacher.objects.filter(category='management_board').order_by('id')
@@ -105,6 +106,7 @@ def administration(request):
         'special_officers': special_officers,
         'teachers': teachers,
         'management_board': management_board,
+        'slider_images': slider_images,
     }
     return render(request, 'website/administration.html', administration_data)
 
