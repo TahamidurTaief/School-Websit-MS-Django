@@ -18,6 +18,7 @@ from django.urls import reverse
 def home(request):
     slider_images = Slider.objects.filter(is_active=True).exclude(image='').order_by('-created_at')
     brief_info_obj = SchoolBriefInfo.objects.filter(is_active=True).first()
+    school_history = SchoolHistory.objects.filter(is_active=True).first()
     principal_message = PrincipalMessage.objects.filter(
         is_active=True, 
         show_on_home_page=True
@@ -71,6 +72,7 @@ def home(request):
         'news_items': news_items,
         'news_links_section': news_links_section,
         'brief_info': brief_info_context,
+        'school_history': school_history,
     }
     return render(request, 'website/home.html', context)
 
