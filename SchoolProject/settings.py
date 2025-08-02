@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'web',
     'django_browser_reload',
     'notice',
+    # 'jet_django',
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,8 @@ UNFOLD = {
         "show_all_applications": True,
     },
 }
+
+
+
+# JET_PROJECT = 'admin_panel_7753'
+# JET_TOKEN = 'e47a58c7-df20-46a5-8aab-1a13ec9e31da'

@@ -1,6 +1,7 @@
 # web/context_processors.py
 
 from .models import SchoolInfo
+from notice.models import Notice
 
 def school_info_processor(request):
     """
@@ -8,5 +9,9 @@ def school_info_processor(request):
     that use RequestContext.
     """
     school_info = SchoolInfo.objects.first()
-    return {'school_info': school_info}
+    latest_notice = Notice.objects.filter(is_active=True).first()
+    return {
+        'school_info': school_info,
+        'latest_notice': latest_notice
+    }
 

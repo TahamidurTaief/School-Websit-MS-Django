@@ -18,9 +18,9 @@ class CustomModelAdmin(ImportExportModelAdmin, ModelAdmin):
 
 @admin.register(SchoolInfo)
 class SchoolInfoAdmin(ModelAdmin):  # SchoolInfo is a singleton, no import/export needed
-    list_display = ('name', 'email', 'phone', 'established_year')
+    list_display = ('name', 'reg_no', 'email', 'phone', 'established_year')
     fieldsets = (
-        ('Basic Information', {'fields': ('name', 'logo', 'favicon', 'established_year')}),
+        ('Basic Information', {'fields': ('name', 'reg_no', 'logo', 'favicon', 'established_year')}),
         ('Contact Details', {'fields': ('address', 'email', 'phone')}),
         ('Social Media Links', {'fields': ('facebook_url', 'instagram_url', 'youtube_url', 'linkedin_url')}),
         ('School Identity', {'fields': ('description', 'history', 'vision', 'mission')}),

@@ -21,6 +21,7 @@ class SchoolInfo(TimeStampModel):
     history = models.TextField()
     vision = models.TextField()
     mission = models.TextField()
+    reg_no = models.CharField(max_length=100, blank=True, null=True, verbose_name="Registration Number")
     # New Social Link Fields
     facebook_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="Facebook URL")
     instagram_url = models.URLField(max_length=255, blank=True, null=True, verbose_name="Instagram URL")
