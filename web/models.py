@@ -135,7 +135,6 @@ class Slider(models.Model):
 class Gallery(TimeStampModel):
     CATEGORIES = (
         ('school', 'School'),
-        ('event', 'Event'),
         ('student', 'Student'),
         ('teacher', 'Teacher')
     )
@@ -476,19 +475,35 @@ class SchoolBriefInfo(TimeStampModel):
     def __str__(self):
         return self.title
 
-class AboutPrincipalMessage(TimeStampModel):
-    """Principal message for about page"""
+class AboutMessage(TimeStampModel):
+    """Message from officials for about page"""
     title = models.CharField(max_length=200, default='অধ্যক্ষের বাণী', verbose_name='শিরোনাম')
     name = models.CharField(max_length=100, verbose_name='নাম')
+    position = models.CharField(max_length=100, verbose_name='পদবী/পদ')
     message = models.TextField(verbose_name='বার্তা')
     photo = models.ImageField(upload_to='about/principal/', blank=True, verbose_name='ছবি')
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
-    order = models.IntegerField(default=0, verbose_name='ক্রম')
+    serial_no = models.IntegerField(default=0, verbose_name='ক্রমিক নম্বর')
+    show_on_home_page = models.BooleanField(
+        default=False,
+        verbose_name="হোম পেজে দেখান",
+        help_text="হোম পেজে দেখানোর জন্য টিক দিন। শুধুমাত্র serial_no=1 এর জন্য সক্রিয় করুন।"
+    )
+
+    def save(self, *args, **kwargs):
+        # If serial_no is 1, automatically set show_on_home_page to True
+        if self.serial_no == 1:
+            self.show_on_home_page = True
+            # Unset any other message that might be currently featured on home page
+            AboutMessage.objects.filter(show_on_home_page=True).exclude(pk=self.pk).update(show_on_home_page=False)
+        else:
+            self.show_on_home_page = False
+        super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['order', '-created_at']
-        verbose_name = 'অধ্যক্ষের বাণী (আমাদের সম্পর্কে)'
-        verbose_name_plural = 'অধ্যক্ষের বাণী (আমাদের সম্পর্কে)'
+        ordering = ['serial_no', '-created_at']
+        verbose_name = 'বার্তা (আমাদের সম্পর্কে)'
+        verbose_name_plural = 'বার্তাসমূহ (আমাদের সম্পর্কে)'
 
     def __str__(self):
         return f"{self.title} - {self.name}"
@@ -582,21 +597,58 @@ class AimPoint(TimeStampModel):
     def __str__(self):
         return self.point
 
-class AboutNewsItem(TimeStampModel):
-    """News items for about page"""
-    title = models.CharField(max_length=200, verbose_name='সংবাদের শিরোনাম')
-    date = models.CharField(max_length=50, verbose_name='তারিখ')
-    link = models.URLField(verbose_name='লিঙ্ক')
-    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
-    order = models.IntegerField(default=0, verbose_name='ক্রম')
+class EventNewsImage(models.Model):
+    """Images for EventAndNews gallery"""
+    image = models.ImageField(upload_to='event_news_gallery/')
+    title = models.CharField(max_length=200, blank=True, verbose_name='ছবির শিরোনাম')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'ইভেন্ট ও সংবাদ ছবি'
+        verbose_name_plural = 'ইভেন্ট ও সংবাদ ছবিসমূহ'
+
+    def __str__(self):
+        return self.title or f"Image {self.id}"
+
+class EventAndNews(models.Model):
+    """Events and News model"""
+    TYPE_CHOICES = [
+        ('EVENT', 'Event'),
+        ('NEWS', 'News'),
+    ]
+
+    title = models.CharField(max_length=200)
+    primary_image = models.ImageField(upload_to='event_news_primary/')
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default=True)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'ইভেন্ট ও সংবাদ'
+        verbose_name_plural = 'ইভেন্ট ও সংবাদসমূহ'
+
+    def __str__(self):
+        return f"{self.get_type_display()} - {self.title}"
+
+
+class EventAndNewsImage(models.Model):
+    """Gallery images for EventAndNews"""
+    event_news = models.ForeignKey(EventAndNews, on_delete=models.CASCADE, related_name='gallery_images')
+    image = models.ImageField(upload_to='event_news_gallery/')
+    title = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True)
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['order', '-created_at']
-        verbose_name = 'সংবাদ আইটেম'
-        verbose_name_plural = 'সংবাদ আইটেমসমূহ'
+        verbose_name = 'ইভেন্ট ও সংবাদের ছবি'
+        verbose_name_plural = 'ইভেন্ট ও সংবাদের ছবিসমূহ'
 
     def __str__(self):
-        return self.title
+        return f"{self.event_news.title} - {self.title or 'Image'}"
 
 class AboutLink(TimeStampModel):
     """Important links for about page"""

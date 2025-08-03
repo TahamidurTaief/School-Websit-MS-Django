@@ -23,6 +23,9 @@ def home(request):
         is_active=True, 
         show_on_home_page=True
     ).select_related('role').first()
+    
+    # Fetch AboutMessage with serial_no=1 for home page
+    message = AboutMessage.objects.filter(is_active=True, serial_no=1).first()
 
     # Data Fetching for Important Info
     notices = Notice.objects.filter(type='notice', is_active=True).order_by('-date')[:5]
@@ -62,10 +65,14 @@ def home(request):
     important_links = ImportantLink.objects.filter(is_active=True).order_by('order', '-created_at')
     news_items = News.objects.filter(is_active=True).order_by('order', '-created_at')[:5]
     news_links_section = NewsLink.objects.filter(is_active=True).first()
+    
+    # Recent Events - Top 6 events for home page
+    recent_events = EventAndNews.objects.filter(status=True).order_by('-created_at')[:6]
 
     context = {
         'slider_images': slider_images,
         'principal_message': principal_message,
+        'message': message,
         'important_info_json': important_info_json,
         'event_images': event_images,
         'important_links': important_links,
@@ -73,6 +80,7 @@ def home(request):
         'news_links_section': news_links_section,
         'brief_info': brief_info_context,
         'school_history': school_history,
+        'recent_events': recent_events,
     }
     return render(request, 'website/home.html', context)
 
@@ -177,8 +185,11 @@ def about(request):
         # Get brief information
         brief_info = SchoolBriefInfo.objects.filter(is_active=True).first()
         
-        # Get principal message for about page
-        principal_message_obj = AboutPrincipalMessage.objects.filter(is_active=True).first()
+        # Get principal message for about page (deprecated - will be replaced by messages)
+        principal_message_obj = AboutMessage.objects.filter(is_active=True).first()
+        
+        # Get all active messages for about page (excluding serial_no=1 which shows on home)
+        messages = AboutMessage.objects.filter(is_active=True, serial_no__gt=1).order_by('serial_no')
         
         # Get school approval information
         approval = SchoolApproval.objects.filter(is_active=True).first()
@@ -197,8 +208,8 @@ def about(request):
         if aims:
             aim_points = AimPoint.objects.filter(aim=aims, is_active=True).order_by('order')
         
-        # Get news items
-        news_items = AboutNewsItem.objects.filter(is_active=True).order_by('order')[:5]
+        # Get news items (using EventAndNews model)
+        news_items = EventAndNews.objects.filter(status=True, type='NEWS').order_by('-created_at')[:5]
         
         # Get important links
         links = AboutLink.objects.filter(is_active=True).order_by('order')[:5]
@@ -255,7 +266,8 @@ def about(request):
         }
         
         return render(request, 'website/about.html', {
-            'about_content': about_content
+            'about_content': about_content,
+            'messages': messages
         })
         
     except Exception as e:
@@ -311,7 +323,8 @@ def about(request):
         }
         
         return render(request, 'website/about.html', {
-            'about_content': about_content
+            'about_content': about_content,
+            'messages': []  # Empty list as fallback
         })
 
 
@@ -674,3 +687,36 @@ def footer_view(request):
         'footer_links': important_links,
     }
     return render(request, 'website/include/footer.html', context)
+
+
+# --- RECENT EVENTS VIEW ---
+def recent_events(request):
+    """
+    This view displays all recent events and news in a responsive grid layout.
+    """
+    events = EventAndNews.objects.filter(status=True).order_by('-created_at')
+    
+    context = {
+        'events': events,
+        'total_events': events.filter(type='EVENT').count(),
+        'total_news': events.filter(type='NEWS').count(),
+    }
+    
+    return render(request, 'website/recent_events.html', context)
+
+
+# --- RECENT EVENTS VIEW (Alternative implementation) ---
+def recent_events_view(request):
+    """
+    Fetches EventAndNews objects where status=True
+    Orders them by created_at DESC
+    Passes to template as context['events']
+    Renders in recent_events.html
+    """
+    events = EventAndNews.objects.filter(status=True).order_by('-created_at')
+    
+    context = {
+        'events': events,
+    }
+    
+    return render(request, 'recent_events.html', context)

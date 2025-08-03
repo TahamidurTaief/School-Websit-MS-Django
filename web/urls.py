@@ -33,6 +33,10 @@ urlpatterns = [
     path('filter-facilities/', filter_facilities, name='filter_facilities'),
     path('contact/', contact, name='contact'),
     path('contact/submit/', submit_contact_message, name='submit_contact_message'),
+    
+    # --- EVENTS AND NEWS ---
+    path('events/', recent_events, name='recent_events'),
+    path('events-view/', recent_events_view, name='recent_events_view'),
 
     path('footer/', footer_view, name='footer'),
 ]

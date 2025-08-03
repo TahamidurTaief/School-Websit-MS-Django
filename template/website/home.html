@@ -15,9 +15,14 @@
         {% include 'component/home/history.html' with history=school_info.history %}
     {% endif %}
 
-    {# The component for the principal's message #}
-    {% if principal_message %}
-        {% include 'component/home/principal_message.html' with principal_message=principal_message %}
+        <!-- {# The component for the principal's message #}
+        {% if principal_message %}
+            {% include 'component/home/principal_message.html' with principal_message=principal_message %}
+        {% endif %} -->
+
+    {# NEW: AboutMessage Component for Home Page (Serial No: 1) #}
+    {% if message %}
+        {% include 'component/about/home_message.html' with message=message %}
     {% endif %}
 
     {# The component for important info tabs #}
@@ -25,9 +30,31 @@
         {% include 'component/home/important_info.html' with notices=notices results=results admissions=admissions routines=routines %}
     {% endif %}
 
-    {# The component for recent events - The line I missed #}
-    {% if event_images %}
-        {% include 'component/common/event_gallery.html' with event_images=event_images %}
+
+    {# Recent Events Section - রিসেন্ট ইভেন্টস #}
+    {% if recent_events %}
+        <section class="py-8 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2 flex items-center">
+        {% if school_history %}
+          {{ school_history.title }}
+        {% else %}
+          আমাদের ইতিহাস
+        {% endif %}
+      </h2>
+      <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transform transition-all duration-500 group-hover:w-40 group-hover:h-2 mb-4"></div>
+                <div class="grid gap-6 grid-cols-2 md:grid-cols-4 xl:grid-cols-5">
+                    {% for event in recent_events %}
+                        {% include 'component/common/event_card.html' with event=event %}
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-8">
+                    <a href="{% url 'recent_events_view' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                        সব ইভেন্ট দেখুন
+                    </a>
+                </div>
+            </div>
+        </section>
     {% endif %}
 
     {# The component for brief information about the school (Corrected variable) #}

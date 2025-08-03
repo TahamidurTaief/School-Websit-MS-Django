@@ -228,9 +228,12 @@ class SchoolHistoryAdmin(CustomModelAdmin):
 class SchoolBriefInfoAdmin(CustomModelAdmin):
     list_display = ('title', 'teachers_count', 'students_count', 'is_active')
 
-@admin.register(AboutPrincipalMessage)
-class AboutPrincipalMessageAdmin(CustomModelAdmin):
-    list_display = ('title', 'name', 'is_active', 'order')
+@admin.register(AboutMessage)
+class AboutMessageAdmin(CustomModelAdmin):
+    list_display = ('title', 'name', 'position', 'serial_no', 'show_on_home_page', 'is_active')
+    list_filter = ('is_active', 'show_on_home_page')
+    ordering = ('serial_no',)
+    readonly_fields = ('show_on_home_page',)  # Make it readonly since it's auto-set based on serial_no
 
 @admin.register(SchoolApproval)
 class SchoolApprovalAdmin(CustomModelAdmin):
@@ -243,12 +246,64 @@ class SchoolBranchAdmin(CustomModelAdmin):
 @admin.register(SchoolRecognition)
 class SchoolRecognitionAdmin(CustomModelAdmin):
     list_display = ('title', 'is_active', 'order')
-    
-@admin.register(AboutNewsItem)
-class AboutNewsItemAdmin(CustomModelAdmin):
-    list_display = ('title', 'date', 'link', 'is_active', 'order')
-    list_editable = ('is_active', 'order')
+
+@admin.register(EventNewsImage)
+class EventNewsImageAdmin(CustomModelAdmin):
+    list_display = ('title', 'image_preview', 'uploaded_at')
     search_fields = ('title',)
+    readonly_fields = ('uploaded_at',)
+    
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="60" height="60" style="object-fit: cover; border-radius: 5px;" />', obj.image.url)
+        return "No Image"
+    image_preview.short_description = 'Preview'
+
+@admin.register(EventAndNews)
+class EventAndNewsAdmin(CustomModelAdmin):
+    list_display = ('title', 'type', 'status', 'created_at', 'primary_image_preview')
+    list_filter = ('type', 'status', 'created_at')
+    search_fields = ('title', 'description')
+    list_editable = ('status',)
+    readonly_fields = ('created_at',)
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'type', 'status')
+        }),
+        ('Content', {
+            'fields': ('description', 'primary_image')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    
+    def primary_image_preview(self, obj):
+        if obj.primary_image:
+            return format_html('<img src="{}" width="60" height="60" style="object-fit: cover; border-radius: 5px;" />', obj.primary_image.url)
+        return "No Image"
+    primary_image_preview.short_description = 'Primary Image'
+
+
+class EventAndNewsImageInline(admin.TabularInline):
+    model = EventAndNewsImage
+    extra = 1
+    fields = ('image', 'title', 'description', 'order', 'image_preview')
+    readonly_fields = ('image_preview',)
+    
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="60" height="60" style="object-fit: cover; border-radius: 5px;" />', obj.image.url)
+        return "No Image"
+    image_preview.short_description = 'Preview'
+
+
+# Update the EventAndNewsAdmin to include the inline
+EventAndNewsAdmin.inlines = [EventAndNewsImageInline]
+
 
 @admin.register(AboutLink)
 class AboutLinkAdmin(CustomModelAdmin):
