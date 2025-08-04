@@ -58,6 +58,24 @@ class TeacherAdmin(CustomModelAdmin):
         return "No Image"
     image_preview.short_description = 'Photo'
 
+@admin.register(FacultyMember)
+class FacultyMemberAdmin(CustomModelAdmin):
+    list_display = ('name', 'position', 'category', 'department', 'email', 'phone', 'is_active', 'order', 'image_preview')
+    list_filter = ('category', 'is_active', 'department')
+    search_fields = ('name', 'position', 'email', 'phone', 'department')
+    list_editable = ('is_active', 'order')
+    fieldsets = (
+        ('Basic Information', {'fields': ('name', 'position', 'photo', 'category')}),
+        ('Professional Details', {'fields': ('department', 'education', 'experience')}),
+        ('Contact Information', {'fields': ('email', 'phone')}),
+        ('Settings', {'fields': ('is_active', 'order')}),
+    )
+    def image_preview(self, obj):
+        if obj.photo:
+            return format_html('<img src="{}" width="60" height="60" style="object-fit: cover; border-radius: 5px;" />', obj.photo.url)
+        return "No Image"
+    image_preview.short_description = 'Photo'
+
 @admin.register(Student)
 class StudentAdmin(CustomModelAdmin):
     list_display = ('name', 'roll_number', 'class_name', 'department', 'guardian_name', 'guardian_phone')

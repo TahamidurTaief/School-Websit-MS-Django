@@ -2,8 +2,6 @@
 
 {% block title %}প্রশাসন | SchoolProject{% endblock %}
 
-
-
 {% block content %}
 <div class="bg-gradient-to-b from-gray-50 to-white py-8">
   <div class="container mx-auto px-4">
@@ -11,10 +9,10 @@
       প্রশাসন
     </h1>
 
-    <!-- {% include 'component/administration/special_officer.html' %} -->
     {% include 'component/administration/management.html' %}
     {% include 'component/administration/teachers.html' %}
     {% include 'component/administration/administration_officer.html' %}
+    {% include 'component/administration/kormochari.html' %}
   </div>
 </div>  
 {% endblock %}

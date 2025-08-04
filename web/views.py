@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.translation import gettext as _
 import os
-from .models import Teacher
+from .models import Teacher, FacultyMember
 from django.urls import reverse
 
 
@@ -108,14 +108,33 @@ def download_notice_file(request, pk):
 
 def administration(request):
     slider_images = Slider.objects.filter(is_active=True).exclude(image='').order_by('-created_at')
+    
+    # Fetch from new FacultyMember model
+    management_members = FacultyMember.objects.filter(category='management', is_active=True).order_by('order', 'id')
+    teacher_members = FacultyMember.objects.filter(category='teacher', is_active=True).order_by('order', 'id')
+    administration_members = FacultyMember.objects.filter(category='administration', is_active=True).order_by('order', 'id')
+    staff_members = FacultyMember.objects.filter(category='staff', is_active=True).order_by('order', 'id')
+    
+    # Keep old Teacher model data for backward compatibility (if needed)
     special_officers = Teacher.objects.filter(category='special_officer').order_by('id')
     teachers = Teacher.objects.filter(category='teacher').order_by('id')
     management_board = Teacher.objects.filter(category='management_board').order_by('id')
+    administration_officers = Teacher.objects.filter(category='administration').order_by('id')
+    kormochari_members = Teacher.objects.filter(category='kormochari').order_by('id')
 
     administration_data = {
+        # New FacultyMember data
+        'management_members': management_members,
+        'teacher_members': teacher_members,
+        'administration_members': administration_members,
+        'staff_members': staff_members,
+        
+        # Old Teacher model data (for backward compatibility)
         'special_officers': special_officers,
         'teachers': teachers,
         'management_board': management_board,
+        'administration_officers': administration_officers,
+        'kormochari_members': kormochari_members,
         'slider_images': slider_images,
     }
     return render(request, 'website/administration.html', administration_data)
@@ -174,8 +193,9 @@ def filter_students(request):
 
 
 def about(request):
-    """About page with dynamic content from database"""
+    """Enhanced About page with modern UI elements from information service"""
     try:
+        # === EXISTING ABOUT PAGE DATA ===
         # Get main about page configuration
         about_page = AboutPage.objects.filter(is_active=True).first()
         
@@ -213,6 +233,26 @@ def about(request):
         
         # Get important links
         links = AboutLink.objects.filter(is_active=True).order_by('order')[:5]
+        
+        # === NEW: INFORMATION SERVICE DATA FOR MODERN UI ===
+        # Get slider images (using main Slider model)
+        slider_images = Slider.objects.filter(is_active=True).exclude(image='').order_by('-created_at')
+        
+        # Get all facility information for stats section
+        facilities = FacilityInfo.objects.filter(is_active=True).order_by('order')
+        
+        # Group facilities by type for modern display
+        facility_groups = {}
+        for facility in facilities:
+            if facility.facility_type not in facility_groups:
+                facility_groups[facility.facility_type] = []
+            facility_groups[facility.facility_type].append(facility)
+        
+        # Get faculty information for team section (use administration teachers only)
+        faculty_members = FacultyMember.objects.filter(is_active=True, category='administration').order_by('order')[:8]  # Limit to 8 for about page
+        
+        # Get information service content
+        info_service = InformationService.objects.filter(is_active=True).first()
         
         # Prepare context data
         about_content = {
@@ -252,8 +292,8 @@ def about(request):
                 'news': [
                     {
                         'title': news.title,
-                        'date': news.date,
-                        'link': news.link
+                        'date': news.created_at.strftime('%d %B, %Y') if news.created_at else 'তারিখ নেই',
+                        'link': '#'  # Can be enhanced later with actual links
                     } for news in news_items
                 ],
                 'links': [
@@ -265,10 +305,18 @@ def about(request):
             }
         }
         
-        return render(request, 'website/about.html', {
+        # Enhanced context with modern UI data
+        context = {
             'about_content': about_content,
-            'messages': messages
-        })
+            'messages': messages,
+            # === NEW: MODERN UI DATA ===
+            'slider_images': slider_images,
+            'facility_groups': facility_groups,
+            'faculty_members': faculty_members,
+            'info_service': info_service,
+        }
+        
+        return render(request, 'website/about.html', context)
         
     except Exception as e:
         # Fallback to default content if there's any error
@@ -720,3 +768,6 @@ def recent_events_view(request):
     }
     
     return render(request, 'recent_events.html', context)
+
+
+

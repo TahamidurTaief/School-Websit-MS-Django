@@ -4,22 +4,247 @@
 {% block title %}{{ about_content.title }} | SchoolProject{% endblock %}
 
 {% block content %}
-<div class="bg-gray-50 py-8">
-    <div class="container mx-auto px-4">
-        <h1 class="text-4xl md:text-5xl font-bold text-center text-[var(--color-primary)] mb-8">{{ about_content.title }}</h1>
-        
-        {% include 'component/home/Hero.html' %}
 
-        {% include 'component/about/history.html' with history=about_content.history %}
-        {% include 'component/about/brief_info.html' with brief_info=about_content.brief_info %}
+<!-- Hero Section with Sliding Gallery -->
+<section class="relative h-96 overflow-hidden bg-gradient-to-r from-blue-900 to-blue-700">
+    <!-- Sliding Gallery -->
+    <div class="relative h-full" x-data="{ currentSlide: 0, slides: {{ slider_images|length|default:1 }}, autoPlay: true }" 
+         x-init="setInterval(() => { if (autoPlay && slides > 1) currentSlide = (currentSlide + 1) % slides }, 5000)">
         
+        <!-- Slides -->
+        {% for slider in slider_images %}
+        <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+             :class="{ 'opacity-100': currentSlide === {{ forloop.counter0 }}, 'opacity-0': currentSlide !== {{ forloop.counter0 }} }">
+            <img src="{{ slider.image.url }}" alt="{{ slider.title|default:'About Us' }}" 
+                 class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        </div>
+        {% empty %}
+        <div class="absolute inset-0">
+            <div class="w-full h-full bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center">
+                <div class="text-center text-white">
+                    <i class="fas fa-university text-8xl mb-4 opacity-50"></i>
+                    <h3 class="text-3xl font-bold">আমাদের সম্পর্কে</h3>
+                    <p class="text-lg opacity-75">একটি আধুনিক ও মানসম্পন্ন শিক্ষা প্রতিষ্ঠান</p>
+                </div>
+            </div>
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        </div>
+        {% endfor %}
+        
+        <!-- Slide Navigation -->
+        {% if slider_images|length > 1 %}
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <template x-for="i in slides" :key="i">
+                <button @click="currentSlide = i - 1; autoPlay = false" 
+                        class="w-3 h-3 rounded-full transition-all duration-300"
+                        :class="currentSlide === i - 1 ? 'bg-white' : 'bg-white bg-opacity-50'"></button>
+            </template>
+        </div>
+        {% endif %}
+        
+        <!-- Content Overlay -->
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-white z-10">
+                <h1 class="text-5xl md:text-6xl font-bold mb-4 animate-fade-in-up">
+                    {{ about_content.title }}
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 animate-fade-in-up-delay">
+                    একটি আধুনিক ও মানসম্পন্ন শিক্ষা প্রতিষ্ঠান
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="document.getElementById('history-section').scrollIntoView({behavior: 'smooth'})" 
+                            class="bg-white text-blue-900 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105">
+                        আরও জানুন
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Content Section -->
+{% if info_service %}
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">{{ info_service.title }}</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">{{ info_service.description }}</p>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<div class="bg-white">
+    <div class="container mx-auto px-4">
+        
+        <!-- History Section -->
+        <section id="history-section" class="py-16">
+            {% include 'component/about/history.html' with history=about_content.history %}
+        </section>
+
+        <!-- Messages Section (Officials' Messages) - MOVED BEFORE Brief Info -->
+        {% if messages %}
+        <section class="py-16 bg-gray-50 -mx-4 px-4">
+            {% include 'component/about/messages_section.html' with messages=messages %}
+        </section>
+        {% endif %}
+
+        <!-- Brief Information with Modern Stats -->
+        <section class="py-16">
+            {% include 'component/about/brief_info.html' with brief_info=about_content.brief_info %}
+        </section>
+
+        <!-- Facilities Section (প্রতিষ্ঠানের সুবিধাসমূহ) -->
+        {% if facility_groups %}
+        <section class="py-16 bg-gray-50 -mx-4 px-4">
+            <div class="container mx-auto">
+                <!-- Section Header -->
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">প্রতিষ্ঠানের সুবিধাসমূহ</h2>
+                    <p class="text-lg text-gray-600">আমাদের প্রতিষ্ঠানের আধুনিক সুযোগ-সুবিধা সম্পর্কে জানুন</p>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap justify-center gap-4 mb-12" x-data="{ activeFilter: 'all' }">
+                    <button @click="activeFilter = 'all'; filterFacilities('all')" 
+                            class="px-6 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105"
+                            :class="activeFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'">
+                        সবকিছু
+                    </button>
+                    {% for facility_type, facilities in facility_groups.items %}
+                    <button @click="activeFilter = '{{ facility_type }}'; filterFacilities('{{ facility_type }}')" 
+                            class="px-6 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105"
+                            :class="activeFilter === '{{ facility_type }}' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'">
+                        {{ facilities.0.get_facility_type_display }}
+                    </button>
+                    {% endfor %}
+                </div>
+
+                <!-- Facilities Grid -->
+                <div id="facilities-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    {% for facility_type, facilities in facility_groups.items %}
+                        {% for facility in facilities %}
+                            {% include 'component/information_service/facility_card.html' with facility=facility %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Faculty/Team Section (Administration Teachers) -->
+        {% if faculty_members %}
+        <section class="py-16">
+            <div class="container mx-auto">
+                <!-- Section Header -->
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">আমাদের শিক্ষকবৃন্দ</h2>
+                    <p class="text-lg text-gray-600">আমাদের অভিজ্ঞ এবং দক্ষ শিক্ষকমণ্ডলী</p>
+                </div>
+
+                <!-- Faculty Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    {% for faculty in faculty_members %}
+                        {% include 'component/administration/faculty_member_card.html' with member=faculty %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
         <!-- Messages Section (Officials' Messages) -->
-        {% include 'component/about/messages_section.html' with messages=messages %}
-        
-        {% include 'component/about/approval.html' with approval=about_content.approval %}
-        {% include 'component/about/recognition.html' with recognition=about_content.recognition %}
-        {% include 'component/about/aims.html' with aims=about_content.aims %}
-        {% include 'component/about/news_links.html' with news_links=about_content.news_links %}
+        <!-- {% if messages %}
+        <section class="py-16 bg-gray-50 -mx-4 px-4">
+            {% include 'component/about/messages_section.html' with messages=messages %}
+        </section>
+        {% endif %} -->
+
+        <!-- Mission/Vision/Aims Section -->
+        <section class="py-16">
+            {% include 'component/about/aims.html' with aims=about_content.aims %}
+        </section>
+
+        <!-- Approval & Recognition Section -->
+        <section class="py-16 bg-gray-50 -mx-4 px-4">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    {% include 'component/about/approval.html' with approval=about_content.approval %}
+                </div>
+                {% if about_content.recognition %}
+                <div>
+                    {% include 'component/about/recognition.html' with recognition=about_content.recognition %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- News & Links Section -->
+        <section class="py-16">
+            {% include 'component/about/news_links.html' with news_links=about_content.news_links %}
+        </section>
+
     </div>
 </div>
+
+<!-- Custom CSS for animations -->
+<style>
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in-up {
+        animation: fade-in-up 1s ease-out;
+    }
+    
+    .animate-fade-in-up-delay {
+        animation: fade-in-up 1s ease-out 0.3s both;
+    }
+    
+    .faculty-card {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.5s ease;
+    }
+    
+    .facility-card {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.5s ease;
+    }
+    
+    .facility-card.hidden {
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+    }
+    
+    /* Smooth scrolling for hero button */
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+
+<!-- JavaScript for filtering -->
+<script>
+function filterFacilities(type) {
+    const cards = document.querySelectorAll('.facility-card');
+    
+    cards.forEach(card => {
+        if (type === 'all' || card.dataset.facilityType === type) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+</script>
+
 {% endblock %}

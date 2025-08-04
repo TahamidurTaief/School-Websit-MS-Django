@@ -67,6 +67,8 @@ class Teacher(TimeStampModel):
         ('special_officer', 'Special Officer'),
         ('teacher', 'Teacher'),
         ('management_board', 'Management Board'),
+        ('administration', 'Administration'),
+        ('kormochari', 'Kormochari Brindo'),
     ]
     category = models.CharField(max_length=32, choices=CATEGORY_CHOICES, default='teacher', verbose_name='Category')
     name = models.CharField(max_length=100)
@@ -81,6 +83,35 @@ class Teacher(TimeStampModel):
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     is_special_officer = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name} - {self.position}"
+
+class FacultyMember(TimeStampModel):
+    """Unified model for all faculty and staff members"""
+    CATEGORY_CHOICES = [
+        ('teacher', 'Teacher'),
+        ('management', 'Management'),
+        ('administration', 'Administration'),
+        ('staff', 'Staff (Kormochari)'),
+    ]
+    
+    category = models.CharField(max_length=32, choices=CATEGORY_CHOICES, default='teacher', verbose_name='Category')
+    name = models.CharField(max_length=200, verbose_name='Name')
+    position = models.CharField(max_length=200, verbose_name='Position')
+    department = models.CharField(max_length=200, blank=True, verbose_name='Department')
+    education = models.CharField(max_length=200, blank=True, verbose_name='Education')
+    experience = models.CharField(max_length=100, blank=True, help_text="Years of experience", verbose_name='Experience')
+    email = models.EmailField(blank=True, verbose_name='Email')
+    phone = models.CharField(max_length=20, blank=True, verbose_name='Phone')
+    photo = models.ImageField(upload_to='faculty_photos/', blank=True, verbose_name='Photo')
+    is_active = models.BooleanField(default=True, verbose_name='Active')
+    order = models.IntegerField(default=0, verbose_name='Order')
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'Faculty Member'
+        verbose_name_plural = 'Faculty Members'
 
     def __str__(self):
         return f"{self.name} - {self.position}"
