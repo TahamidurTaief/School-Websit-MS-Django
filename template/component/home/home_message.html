@@ -1,0 +1,87 @@
+<!-- Single Message Component for Home Page (Serial No: 1) -->
+<section class="py-12 bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div class="container mx-auto px-4">
+        <div class="w-full mx-auto">
+            <!-- Section Title -->
+            <!-- Section Title -->
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[var(--color-primary)] mb-8">
+                {{ message.title }}
+            </h2>
+            
+            <!-- Message Card -->
+            <div x-data="{ expanded: false }" class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 transition-all duration-300 hover:shadow-xl">
+                <!-- Header Section with Image on Right -->
+                <div class="flex flex-col lg:flex-row items-center lg:items-start gap-8 mb-6">
+                    <!-- Content (Left Side) -->
+                    <div class="flex-grow text-center lg:text-left">
+                        <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-3">{{ message.name }}</h3>
+                        <p class="text-blue-600 font-semibold text-xl mb-4">{{ message.position }}</p>
+                        {% if message.title %}
+                        <p class="text-gray-600 text-sm bg-blue-100 px-4 py-2 rounded-full inline-block mb-4">{{ message.title }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Photo (Right Side) -->
+                    {% if message.photo %}
+                    <div class="flex-shrink-0 order-first lg:order-last">
+                        <img src="{{ message.photo.url }}" 
+                             alt="{{ message.name }}" 
+                             class="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-xl object-cover border-4 border-white shadow-lg">
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Message Section -->
+                <div class="relative">
+                    <!-- Message Preview (with line-clamp) -->
+                    <div x-show="!expanded" 
+                         class="text-gray-700 leading-relaxed text-justify text-lg">
+                        <p class="line-clamp-4">{{ message.message }}</p>
+                    </div>
+                    
+                    <!-- Full Message -->
+                    <div x-show="expanded" 
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 transform scale-95"
+                         x-transition:enter-end="opacity-100 transform scale-100"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 transform scale-100"
+                         x-transition:leave-end="opacity-0 transform scale-95"
+                         class="text-gray-700 leading-relaxed text-justify text-lg">
+                        <p class="whitespace-pre-line">{{ message.message }}</p>
+                    </div>
+                    
+                    <!-- Toggle Button -->
+                    <div class="mt-6 text-center">
+                        <button @click="expanded = !expanded" 
+                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg transform hover:scale-105">
+                            <span x-show="!expanded" class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                                সম্পূর্ণ বার্তা পড়ুন
+                            </span>
+                            <span x-show="expanded" class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                                সংক্ষিপ্ত করুন
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Custom CSS for line-clamp -->
+<style>
+.line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>

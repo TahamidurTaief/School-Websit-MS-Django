@@ -9,7 +9,7 @@ urlpatterns = [
     
     path('', include('web.urls')),
     path('', include('notice.urls')),
-    path('jet_api/', include('jet_django.urls')),
+    # path('jet_api/', include('jet_django.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

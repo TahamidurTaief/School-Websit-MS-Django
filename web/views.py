@@ -19,6 +19,7 @@ def home(request):
     slider_images = Slider.objects.filter(is_active=True).exclude(image='').order_by('-created_at')
     brief_info_obj = SchoolBriefInfo.objects.filter(is_active=True).first()
     school_history = SchoolHistory.objects.filter(is_active=True).first()
+    gallery_images = Gallery.objects.all().order_by('-created_at')[:12]
     principal_message = PrincipalMessage.objects.filter(
         is_active=True, 
         show_on_home_page=True
@@ -81,6 +82,7 @@ def home(request):
         'brief_info': brief_info_context,
         'school_history': school_history,
         'recent_events': recent_events,
+        'gallery_images' : gallery_images,
     }
     return render(request, 'website/home.html', context)
 
@@ -214,9 +216,6 @@ def about(request):
         # Get school approval information
         approval = SchoolApproval.objects.filter(is_active=True).first()
         
-        # Get school branches
-        branches = SchoolBranch.objects.filter(is_active=True).order_by('order')
-        
         # Get school recognition
         recognition = SchoolRecognition.objects.filter(is_active=True).first()
         
@@ -273,13 +272,7 @@ def about(request):
             'approval': {
                 'title': approval.title if approval else 'অনুমোদন',
                 'content': approval.content if approval else 'অনুমোদনের তথ্য পাওয়া যায়নি।',
-                'branches': [
-                    {
-                        'name': branch.name,
-                        'location': branch.location,
-                        'established': branch.established_year
-                    } for branch in branches
-                ]
+                'image': approval.image if approval else None
             },
             'recognition': recognition,
             'aims': {
@@ -492,6 +485,54 @@ def filter_books(request):
     return JsonResponse({'books': books_data})
 
 
+def syllabus(request):
+    classes = Class.objects.all().order_by('numeric_value')
+    departments = Department.objects.all()
+    
+    # Get initial syllabus
+    initial_syllabus = Syllabus.objects.filter(
+        is_active=True
+    ).exclude(file='').select_related('class_name', 'department')
+    
+    context = {
+        'classes': classes,
+        'departments': departments,
+        'initial_syllabus': initial_syllabus,
+    }
+    return render(request, 'website/syllabus.html', context)
+
+
+def filter_syllabus(request):
+    class_id = request.GET.get('class_id')
+    dept_slug = request.GET.get('dept_slug')
+    
+    syllabus_items = Syllabus.objects.filter(
+        is_active=True
+    ).exclude(file='').select_related('class_name', 'department')
+    
+    if class_id and class_id.isdigit():
+        syllabus_items = syllabus_items.filter(class_name_id=int(class_id))
+    elif dept_slug:
+        syllabus_items = syllabus_items.filter(department__slug=dept_slug)
+    
+    syllabus_items = syllabus_items.order_by('-updated_at')
+    
+    # Prepare data for JSON response
+    syllabus_data = []
+    for syllabus in syllabus_items:
+        syllabus_data.append({
+            'id': syllabus.id,
+            'title': syllabus.title,
+            'class_name': syllabus.class_name.name if syllabus.class_name else '',
+            'department': syllabus.department.name if syllabus.department else '',
+            'updated_at': syllabus.updated_at.strftime('%d %b %Y'),
+            'file_url': request.build_absolute_uri(syllabus.file.url) if syllabus.file else '',
+            'download_url': request.build_absolute_uri(f'/download-syllabus/{syllabus.id}/')
+        })
+        
+    return JsonResponse({'syllabus': syllabus_data})
+
+
 def download_book(request, pk):
     try:
         book = Book.objects.get(pk=pk)
@@ -508,6 +549,24 @@ def download_book(request, pk):
     except Exception as e:
         # Log the exception for debugging
         print(f"Error downloading book: {e}")
+        return HttpResponseServerError('An error occurred during download.')
+
+def download_syllabus(request, pk):
+    try:
+        syllabus = Syllabus.objects.get(pk=pk)
+        file_path = syllabus.file.path
+        # Ensure the file exists before attempting to open
+        if not os.path.exists(file_path):
+            return HttpResponseNotFound('The requested file was not found.')
+
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{quote(syllabus.file.name)}"'
+        return response
+    except Syllabus.DoesNotExist:
+        return HttpResponseNotFound('Syllabus not found.')
+    except Exception as e:
+        # Log the exception for debugging
+        print(f"Error downloading syllabus: {e}")
         return HttpResponseServerError('An error occurred during download.')
 
 def result_list(request):
@@ -568,6 +627,72 @@ def view_result_pdf(request, pk):
     response = FileResponse(result.file.open(), content_type='application/pdf')
     return response
 
+
+# Admission Views
+def admission_list(request):
+    classes = Class.objects.all().order_by('numeric_value')
+    departments = Department.objects.all()
+
+    context = {
+        'classes': classes,
+        'departments': departments,
+    }
+    return render(request, 'website/admissions.html', context)
+
+def filter_admissions(request):
+    class_id = request.GET.get('class_id')
+    dept_slug = request.GET.get('dept_slug')
+
+    admissions = Admission.objects.filter(is_active=True)
+
+    if class_id and class_id.isdigit():
+        admissions = admissions.filter(class_name_id=int(class_id))
+    elif dept_slug:
+        admissions = admissions.filter(department__slug=dept_slug)
+
+    admissions = admissions.order_by('-created_at')
+
+    admissions_data = []
+    for admission in admissions:
+        admissions_data.append({
+            'id': admission.id,
+            'title': admission.title,
+            'class_name': admission.class_name.name if admission.class_name else '',
+            'department': admission.department.name if admission.department else '',
+            'updated_at': admission.updated_at.strftime('%d %b %Y'),
+            'file_url': admission.file.url,
+            'download_url': reverse('download_admission', kwargs={'pk': admission.id}),
+        })
+
+    return JsonResponse({'admissions': admissions_data})
+
+def download_admission(request, pk):
+    try:
+        admission = Admission.objects.get(pk=pk)
+        file_path = admission.file.path
+        if not os.path.exists(file_path):
+            return HttpResponseNotFound('The requested file was not found.')
+
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{quote(os.path.basename(admission.file.name))}"'
+        return response
+    except Admission.DoesNotExist:
+        return HttpResponseNotFound('Admission not found.')
+    except Exception as e:
+        print(f"Error downloading admission: {e}")
+        return HttpResponseServerError('An error occurred during download.')
+
+def view_admission_pdf(request, pk):
+    try:
+        admission = Admission.objects.get(pk=pk)
+        response = FileResponse(admission.file.open(), content_type='application/pdf')
+        return response
+    except Admission.DoesNotExist:
+        return HttpResponseNotFound('Admission not found.')
+    except Exception as e:
+        print(f"Error viewing admission PDF: {e}")
+        return HttpResponseServerError('An error occurred while viewing the PDF.')
+
 def gallery_list(request):
     context = {
         'image_categories': Gallery.CATEGORIES,
@@ -604,12 +729,21 @@ def filter_gallery_videos(request):
 
     videos_data = []
     for video in videos:
-        videos_data.append({
-            'id': video.id,
-            'title': video.title,
-            'youtube_id': video.youtube_id,
-            'description': video.description,
-        })
+        # Ensure we have a valid YouTube ID
+        if not video.youtube_id and video.youtube_url:
+            video.youtube_id = video.extract_youtube_id(video.youtube_url)
+            video.save()
+        
+        if video.youtube_id:  # Only include videos with valid YouTube IDs
+            videos_data.append({
+                'id': video.id,
+                'title': video.title,
+                'youtube_id': video.youtube_id,
+                'description': video.description,
+                'embed_url': video.embed_url,
+                'thumbnail_url': video.thumbnail_url,
+            })
+    
     return JsonResponse({'videos': videos_data})
 
 

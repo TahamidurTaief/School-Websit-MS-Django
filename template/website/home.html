@@ -22,7 +22,7 @@
 
     {# NEW: AboutMessage Component for Home Page (Serial No: 1) #}
     {% if message %}
-        {% include 'component/about/home_message.html' with message=message %}
+        {% include 'component/home/home_message.html' with message=message %}
     {% endif %}
 
     {# The component for important info tabs #}
@@ -36,13 +36,9 @@
         <section class="py-8 bg-gray-50">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2 flex items-center">
-        {% if school_history %}
-          {{ school_history.title }}
-        {% else %}
-          আমাদের ইতিহাস
-        {% endif %}
-      </h2>
-      <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transform transition-all duration-500 group-hover:w-40 group-hover:h-2 mb-4"></div>
+                    সাম্প্রতিক
+                </h2>
+                <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transform transition-all duration-500 group-hover:w-40 group-hover:h-2 mb-4"></div>
                 <div class="grid gap-6 grid-cols-2 md:grid-cols-4 xl:grid-cols-5">
                     {% for event in recent_events %}
                         {% include 'component/common/event_card.html' with event=event %}
@@ -63,8 +59,8 @@
     {% endif %}
 
     {# The component for the photo gallery #}
-    {% if event_images %}
-        {% include 'component/home/gallery.html' with gallery_images=event_images %}
+    {% if gallery_images %}
+        {% include 'component/home/gallery.html' with gallery_images=gallery_images %}
     {% endif %}
 
     {# The component for important links (Preserved as commented out, per your file) #}

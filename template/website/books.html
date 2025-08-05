@@ -13,14 +13,7 @@
             activeTab: 'class',
             activeClass: null,
             activeDept: null,
-            isModalOpen: false,
-            pdfUrl: '',
             books: [],
-            
-            openModal(url) {
-                this.pdfUrl = url;
-                this.isModalOpen = true;
-            },
             
             async filterBooks() {
                 let url = '{% url "filter_books" %}?';
@@ -114,12 +107,15 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="book.updated_at"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
-                                            <button @click="openModal(book.file_url)"
-                                                    class="text-blue-600 hover:text-blue-900">
+                                            <a :href="book.file_url"
+                                               x-show="book.file_url"
+                                               target="_blank"
+                                               class="text-blue-600 hover:text-blue-900 flex items-center gap-1 px-3 py-1 rounded-md hover:bg-blue-50 transition-colors">
                                                 <i class="fas fa-eye"></i> দেখুন
-                                            </button>
+                                            </a>
                                             <a :href="book.download_url"
-                                               class="text-green-600 hover:text-green-900">
+                                               target="_blank"
+                                               class="text-green-600 hover:text-green-900 flex items-center gap-1 px-3 py-1 rounded-md hover:bg-green-50 transition-colors">
                                                 <i class="fas fa-download"></i> ডাউনলোড
                                             </a>
                                         </div>
@@ -141,35 +137,4 @@
         </div>
     </div>
 </div>
-
-<!-- PDF Viewer Modal (same as in routine.html) -->
-<div x-show="isModalOpen" 
-     x-transition:enter="transition ease-out duration-200"
-     x-transition:enter-start="opacity-0"
-     x-transition:enter-end="opacity-100"
-     x-transition:leave="transition ease-in duration-150"
-     x-transition:leave-start="opacity-100"
-     x-transition:leave-end="opacity-0"
-     class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-     x-cloak
-     @click.away="isModalOpen = false"
-     @keydown.escape.window="isModalOpen = false">
-    <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
-         @click.stop>
-        <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b">
-            <h3 class="text-lg font-medium">PDF Viewer</h3>
-            <button @click="isModalOpen = false" 
-                    class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="h-[80vh]">
-            <iframe :src="pdfUrl" class="w-full h-full" frameborder="0"></iframe>
-        </div>
-    </div>
-</div>
-
-<style>
-    [x-cloak] { display: none !important; }
-</style>
 {% endblock %}

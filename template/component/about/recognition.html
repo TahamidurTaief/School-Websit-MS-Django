@@ -28,65 +28,6 @@
             <span class="bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">আন্তর্জাতিক স্বীকৃতি</span>
           </div>
         </div>
-      </div>
-      
-      <!-- Right Side: Document -->
-      <div class="flex flex-col">
-        <h3 class="text-2xl font-semibold text-[var(--color-primary)] mb-4 flex items-center">
-          <i class="fas fa-file-alt text-green-600 mr-3"></i>
-          স্বীকৃতি দলিল
-        </h3>
-        
-        {% if recognition.document %}
-          <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-400 transition-colors duration-300">
-            <div class="text-center">
-              <div class="mb-4">
-                {% if recognition.document.name|lower|slice:"-4:" == ".pdf" %}
-                  <i class="fas fa-file-pdf text-6xl text-red-500 mb-4"></i>
-                {% elif recognition.document.name|lower|slice:"-4:" == ".doc" or recognition.document.name|lower|slice:"-5:" == ".docx" %}
-                  <i class="fas fa-file-word text-6xl text-blue-500 mb-4"></i>
-                {% elif recognition.document.name|lower|slice:"-4:" == ".jpg" or recognition.document.name|lower|slice:"-5:" == ".jpeg" or recognition.document.name|lower|slice:"-4:" == ".png" %}
-                  <i class="fas fa-file-image text-6xl text-green-500 mb-4"></i>
-                {% else %}
-                  <i class="fas fa-file text-6xl text-gray-500 mb-4"></i>
-                {% endif %}
-              </div>
-              
-              <h4 class="text-lg font-semibold text-gray-800 mb-2">
-                {% if recognition.document_title %}
-                  {{ recognition.document_title }}
-                {% else %}
-                  স্বীকৃতি দলিল
-                {% endif %}
-              </h4>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                ফাইল সাইজ: {{ recognition.document.size|filesizeformat }}
-              </p>
-              
-              <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="{{ recognition.document.url }}" 
-                   target="_blank" 
-                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300">
-                  <i class="fas fa-eye mr-2"></i>
-                  দেখুন
-                </a>
-                <a href="{{ recognition.document.url }}" 
-                   download
-                   class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-300">
-                  <i class="fas fa-download mr-2"></i>
-                  ডাউনলোড
-                </a>
-              </div>
-            </div>
-          </div>
-        {% else %}
-          <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <i class="fas fa-file-upload text-4xl text-gray-400 mb-4"></i>
-            <h4 class="text-lg font-semibold text-gray-600 mb-2">কোন দলিল নেই</h4>
-            <p class="text-gray-500 text-sm">স্বীকৃতি দলিল এখনও আপলোড করা হয়নি</p>
-          </div>
-        {% endif %}
         
         <!-- Additional Recognition Info -->
         <div class="mt-6 bg-blue-50 p-4 rounded-lg">
@@ -110,6 +51,83 @@
           </ul>
         </div>
       </div>
+      
+      <!-- Right Side: Document Image -->
+      <div class="flex flex-col">
+        <h3 class="text-2xl font-semibold text-[var(--color-primary)] mb-4 flex items-center">
+          <i class="fas fa-file-alt text-green-600 mr-3"></i>
+          স্বীকৃতি দলিল
+        </h3>
+        
+        {% if recognition.image %}
+          <div class="bg-white border-2 border-gray-300 rounded-lg p-4 hover:border-green-400 transition-colors duration-300">
+            <!-- A4 Ratio Image Container -->
+            <div class="relative w-full" style="aspect-ratio: 1/1.414;">
+              <img src="{{ recognition.image.url }}" 
+                   alt="স্বীকৃতি দলিল" 
+                   class="w-full h-full object-cover rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                   onclick="openRecognitionImageModal('{{ recognition.image.url }}', 'স্বীকৃতি দলিল')">
+            </div>
+            <div class="text-center mt-4">
+              <p class="text-gray-600 text-sm mb-2">স্বীকৃতি দলিল</p>
+              <button onclick="openRecognitionImageModal('{{ recognition.image.url }}', 'স্বীকৃতি দলিল')" 
+                      class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300">
+                <i class="fas fa-expand mr-2"></i>
+                বড় করে দেখুন
+              </button>
+            </div>
+          </div>
+        {% else %}
+          <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" style="aspect-ratio: 1/1.414;">
+            <div class="flex flex-col items-center justify-center h-full">
+              <i class="fas fa-file-upload text-4xl text-gray-400 mb-4"></i>
+              <h4 class="text-lg font-semibold text-gray-600 mb-2">কোন দলিল নেই</h4>
+              <p class="text-gray-500 text-sm">স্বীকৃতি দলিল এখনও আপলোড করা হয়নি</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 </section>
+
+<!-- Image Modal -->
+<div id="recognitionImageModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50" style="display: none;">
+  <div class="relative max-w-4xl max-h-full p-4">
+    <button onclick="closeRecognitionImageModal()" class="absolute top-2 right-2 text-white text-2xl hover:text-gray-300 z-10">
+      <i class="fas fa-times"></i>
+    </button>
+    <img id="recognitionModalImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+    <p id="recognitionModalTitle" class="text-white text-center mt-4 text-lg"></p>
+  </div>
+</div>
+
+<script>
+function openRecognitionImageModal(imageUrl, title) {
+  document.getElementById('recognitionModalImage').src = imageUrl;
+  document.getElementById('recognitionModalTitle').textContent = title;
+  const modal = document.getElementById('recognitionImageModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRecognitionImageModal() {
+  const modal = document.getElementById('recognitionImageModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside the image
+document.getElementById('recognitionImageModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeRecognitionImageModal();
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeRecognitionImageModal();
+  }
+});
+</script>

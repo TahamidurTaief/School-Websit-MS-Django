@@ -157,6 +157,15 @@ class BookAdmin(CustomModelAdmin):
     autocomplete_fields = ('class_name', 'department')
     list_editable = ('is_active',)
 
+@admin.register(Syllabus)
+class SyllabusAdmin(CustomModelAdmin):
+    list_display = ('title', 'class_name', 'department', 'is_active', 'updated_at')
+    list_filter = ('class_name', 'department', 'is_active')
+    search_fields = ('title',)
+    autocomplete_fields = ('class_name', 'department')
+    list_editable = ('is_active',)
+    date_hierarchy = 'updated_at'
+
 @admin.register(Result)
 class ResultAdmin(CustomModelAdmin):
     list_display = ('title', 'class_name', 'department', 'is_active', 'created_at')
@@ -165,11 +174,43 @@ class ResultAdmin(CustomModelAdmin):
     autocomplete_fields = ('class_name', 'department')
     list_editable = ('is_active',)
 
+@admin.register(Admission)
+class AdmissionAdmin(CustomModelAdmin):
+    list_display = ('title', 'class_name', 'department', 'is_active', 'created_at')
+    list_filter = ('class_name', 'department', 'is_active')
+    search_fields = ('title',)
+    autocomplete_fields = ('class_name', 'department')
+    list_editable = ('is_active',)
+
 @admin.register(Video)
 class VideoAdmin(CustomModelAdmin):
-    list_display = ('title', 'youtube_id', 'is_active')
-    search_fields = ('title',)
+    list_display = ('title', 'youtube_id', 'video_preview', 'is_active', 'created_at')
+    search_fields = ('title', 'description')
     list_editable = ('is_active',)
+    list_filter = ('is_active', 'created_at')
+    readonly_fields = ('youtube_id', 'video_preview')
+    
+    fieldsets = (
+        ('Video Information', {
+            'fields': ('title', 'description', 'is_active')
+        }),
+        ('YouTube Settings', {
+            'fields': ('youtube_url', 'youtube_id', 'video_preview'),
+            'description': 'Paste the full YouTube URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ). The video ID will be extracted automatically.'
+        }),
+    )
+    
+    def video_preview(self, obj):
+        """Display video preview in admin"""
+        if obj.youtube_id:
+            return format_html(
+                '<div style="width: 200px; height: 112px;">'
+                '<iframe width="200" height="112" src="https://www.youtube.com/embed/{}" '
+                'frameborder="0" allowfullscreen></iframe></div>',
+                obj.youtube_id
+            )
+        return "No video"
+    video_preview.short_description = "Video Preview"
 
 # --- Leadership and Messages ---
 
@@ -256,10 +297,6 @@ class AboutMessageAdmin(CustomModelAdmin):
 @admin.register(SchoolApproval)
 class SchoolApprovalAdmin(CustomModelAdmin):
     list_display = ('title', 'is_active', 'order')
-
-@admin.register(SchoolBranch)
-class SchoolBranchAdmin(CustomModelAdmin):
-    list_display = ('name', 'location', 'established_year', 'is_active')
 
 @admin.register(SchoolRecognition)
 class SchoolRecognitionAdmin(CustomModelAdmin):

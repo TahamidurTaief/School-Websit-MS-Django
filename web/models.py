@@ -294,6 +294,23 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
+class Syllabus(models.Model):
+    title = models.CharField(max_length=200, verbose_name='পাঠ্যক্রমের শিরোনাম')
+    class_name = models.ForeignKey('Class', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='শ্রেণি')
+    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='বিভাগ')
+    file = models.FileField(upload_to='syllabus/', blank=True, verbose_name='পাঠ্যক্রম ফাইল')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'পাঠ্যক্রম'
+        verbose_name_plural = 'পাঠ্যক্রমসমূহ'
+
+    def __str__(self):
+        return self.title
+
 class Result(TimeStampModel):
     title = models.CharField(max_length=255)
     file = models.FileField(
@@ -311,9 +328,30 @@ class Result(TimeStampModel):
     def __str__(self):
         return self.title
 
+
+class Admission(TimeStampModel):
+    title = models.CharField(max_length=255, verbose_name='ভর্তির শিরোনাম')
+    file = models.FileField(
+        upload_to='admissions/',
+        validators=[FileExtensionValidator(['pdf'])],
+        verbose_name='ভর্তির ফাইল'
+    )
+    class_name = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='শ্রেণি')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='বিভাগ')
+    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
+
+    class Meta:
+        verbose_name = 'ভর্তি'
+        verbose_name_plural = "ভর্তিসমূহ"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
 class Video(TimeStampModel):
     title = models.CharField(max_length=255)
-    youtube_id = models.CharField(max_length=50, help_text="The YouTube video ID (e.g., dQw4w9WgXcQ)")
+    youtube_url = models.URLField(max_length=500, blank=True, null=True, help_text="Full YouTube URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)")
+    youtube_id = models.CharField(max_length=50, blank=True, help_text="The YouTube video ID (e.g., dQw4w9WgXcQ) - will be auto-extracted from URL")
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
 
@@ -323,6 +361,55 @@ class Video(TimeStampModel):
 
     def __str__(self):
         return self.title
+
+    def extract_youtube_id(self, url):
+        """Extract YouTube video ID from various YouTube URL formats"""
+        import re
+        
+        if not url:
+            return ""
+            
+        # YouTube URL patterns
+        patterns = [
+            r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})',
+            r'youtube\.com/watch\?.*v=([a-zA-Z0-9_-]{11})',
+            r'youtu\.be/([a-zA-Z0-9_-]{11})',
+            r'youtube\.com/embed/([a-zA-Z0-9_-]{11})'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, url)
+            if match:
+                return match.group(1)
+        
+        # If no pattern matches, assume it's already a video ID
+        if len(url) == 11 and re.match(r'^[a-zA-Z0-9_-]+$', url):
+            return url
+            
+        return ""
+
+    def save(self, *args, **kwargs):
+        """Auto-extract YouTube ID from URL before saving"""
+        if self.youtube_url and not self.youtube_id:
+            self.youtube_id = self.extract_youtube_id(self.youtube_url)
+        elif not self.youtube_url and self.youtube_id:
+            # If only ID is provided, construct the URL
+            self.youtube_url = f"https://www.youtube.com/watch?v={self.youtube_id}"
+        super().save(*args, **kwargs)
+
+    @property
+    def embed_url(self):
+        """Get the embeddable YouTube URL"""
+        if self.youtube_id:
+            return f"https://www.youtube.com/embed/{self.youtube_id}?rel=0&modestbranding=1"
+        return ""
+
+    @property
+    def thumbnail_url(self):
+        """Get the YouTube thumbnail URL"""
+        if self.youtube_id:
+            return f"https://img.youtube.com/vi/{self.youtube_id}/maxresdefault.jpg"
+        return ""
 
 class InformationService(TimeStampModel):
     """Main model for Information Service Center"""
@@ -543,6 +630,13 @@ class SchoolApproval(TimeStampModel):
     """School approval and recognition information"""
     title = models.CharField(max_length=200, default='অনুমোদন', verbose_name='শিরোনাম')
     content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
+    image = models.ImageField(
+        upload_to='approval_documents/',
+        blank=True,
+        null=True,
+        verbose_name='অনুমোদন দলিল (ছবি)',
+        help_text='A4 ratio image of approval document'
+    )
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')
 
@@ -554,38 +648,16 @@ class SchoolApproval(TimeStampModel):
     def __str__(self):
         return self.title
 
-class SchoolBranch(TimeStampModel):
-    """School branches information"""
-    name = models.CharField(max_length=200, verbose_name='শাখার নাম')
-    location = models.CharField(max_length=200, verbose_name='ঠিকানা')
-    established_year = models.CharField(max_length=20, verbose_name='প্রতিষ্ঠাকাল')
-    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
-    order = models.IntegerField(default=0, verbose_name='ক্রম')
-
-    class Meta:
-        ordering = ['order', '-created_at']
-        verbose_name = 'শাখা'
-        verbose_name_plural = 'শাখাসমূহ'
-
-    def __str__(self):
-        return f"{self.name} - {self.location}"
-
 class SchoolRecognition(TimeStampModel):
     """School recognition and awards"""
     title = models.CharField(max_length=200, default='স্বীকৃতি', verbose_name='শিরোনাম')
     content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
-    document = models.FileField(
+    image = models.ImageField(
         upload_to='recognition_documents/',
         blank=True,
         null=True,
-        verbose_name='স্বীকৃতি দলিল',
-        help_text='PDF, DOC, or image file'
-    )
-    document_title = models.CharField(
-        max_length=200,
-        blank=True,
-        verbose_name='দলিলের শিরোনাম',
-        help_text='Document title to display'
+        verbose_name='স্বীকৃতি দলিল (ছবি)',
+        help_text='A4 ratio image of recognition document'
     )
     is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
     order = models.IntegerField(default=0, verbose_name='ক্রম')

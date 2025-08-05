@@ -27,7 +27,7 @@
     }
   }" x-init="images.length > 1 && start()" @mouseenter="stop()" @mouseleave="images.length > 1 && start()">
     
-    <div class="relative overflow-hidden w-full h-[40vw] max-h-[500px]">
+    <div class="relative overflow-hidden w-full h-[45vw] max-h-[550px]">
       <template x-for="(img, idx) in images" :key="idx">
         <div
           x-show="active === idx"
