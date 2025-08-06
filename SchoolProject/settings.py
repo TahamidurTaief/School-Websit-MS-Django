@@ -33,8 +33,6 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'unfold',
-    # 'unfold.basetheme',
-    # 'unfold.admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +43,6 @@ INSTALLED_APPS = [
     'web',
     'django_browser_reload',
     'notice',
-    # 'jet_django',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +54,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
-    
 ]
 
 ROOT_URLCONF = 'SchoolProject.urls'
@@ -126,10 +122,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-# Static files (CSS, JS)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # for custom static folders
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')    # where collectstatic dumps to
+
+# Additional static file finders for production
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 # Media files (uploads)
 MEDIA_URL = '/media/'
@@ -140,20 +141,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
 UNFOLD = {
     "SITE_TITLE": "School Administration",
     "SITE_HEADER": "School Admin Panel",
     "SITE_URL": "/",
-    # "THEME": "dark",  # You can switch to "light"
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,
     },
 }
-
-
-
-# JET_PROJECT = 'admin_panel_7753'
-# JET_TOKEN = 'e47a58c7-df20-46a5-8aab-1a13ec9e31da'

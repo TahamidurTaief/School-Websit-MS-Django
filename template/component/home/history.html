@@ -66,7 +66,11 @@
     <!-- Right: Responsive Image (equal width, fully covers) -->
     <div class="flex-1 min-w-0 flex items-stretch">
       <div class="relative w-full h-64 md:h-auto md:min-h-[350px] lg:min-h-[400px] flex-1">
+        {% if school_history and school_history.image %}
+        <img src="{{ school_history.image.url }}" alt="{{ school_history.title }}" class="absolute inset-0 w-full h-full object-cover rounded-xl shadow-xl border-4 border-blue-100" />
+        {% else %}
         <img src="{% static 'img/home/institute.jpg' %}" alt="History" class="absolute inset-0 w-full h-full object-cover rounded-xl shadow-xl border-4 border-blue-100" />
+        {% endif %}
       </div>
     </div>
   </div>

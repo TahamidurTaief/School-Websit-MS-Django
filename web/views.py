@@ -18,7 +18,7 @@ from django.urls import reverse
 def home(request):
     slider_images = Slider.objects.filter(is_active=True).exclude(image='').order_by('-created_at')
     brief_info_obj = SchoolBriefInfo.objects.filter(is_active=True).first()
-    school_history = SchoolHistory.objects.filter(is_active=True).first()
+    school_history = SchoolHistory.objects.all().first()
     gallery_images = Gallery.objects.all().order_by('-created_at')[:12]
     principal_message = PrincipalMessage.objects.filter(
         is_active=True, 

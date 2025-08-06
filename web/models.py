@@ -52,7 +52,7 @@ class Department(TimeStampModel):
 class Class(TimeStampModel):
     name = models.CharField(max_length=50)  # Bengali name
     name_en = models.CharField(max_length=50)  # English name
-    numeric_value = models.IntegerField()  # For sorting (e.g., 6,7,8)
+    numeric_value = models.IntegerField(unique=True)  # For sorting (e.g., 6,7,8)
     description = models.TextField(blank=True)
 
     class Meta:
@@ -121,7 +121,7 @@ class Student(TimeStampModel):
     roll_number = models.CharField(max_length=20)
     registration_number = models.CharField(max_length=20)
     class_name = models.ForeignKey(Class, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     photo = models.ImageField(upload_to='students/', blank=True)
     guardian_name = models.CharField(max_length=100)
     guardian_phone = models.CharField(max_length=20)
@@ -559,15 +559,12 @@ class AboutPage(TimeStampModel):
     def __str__(self):
         return self.title
 
-class SchoolHistory(TimeStampModel):
-    """School history section"""
-    title = models.CharField(max_length=200, default='প্রতিষ্ঠানের ইতিহাস', verbose_name='শিরোনাম')
-    content = models.TextField(verbose_name='বিস্তারিত বিবরণ')
-    is_active = models.BooleanField(default=True, verbose_name='সক্রিয়')
-    order = models.IntegerField(default=0, verbose_name='ক্রম')
+class SchoolHistory(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    image = models.ImageField(upload_to='history/', blank=True, null=True)
 
     class Meta:
-        ordering = ['order', '-created_at']
         verbose_name = 'প্রতিষ্ঠানের ইতিহাস'
         verbose_name_plural = 'প্রতিষ্ঠানের ইতিহাস'
 

@@ -8,6 +8,7 @@ from unfold.admin import ModelAdmin
 from import_export.admin import ImportExportModelAdmin
 
 from .models import *
+from .resources import ClassResource, StudentResource
 
 # --- COMBINED ADMIN CLASS FOR UNFOLD + IMPORT/EXPORT ---
 # All your classes will inherit from this for a consistent look and functionality.
@@ -36,9 +37,45 @@ class DepartmentAdmin(CustomModelAdmin):
 
 @admin.register(Class)
 class ClassAdmin(CustomModelAdmin):
-    list_display = ('name', 'name_en', 'numeric_value')
+    resource_class = ClassResource
+    list_display = ('name', 'name_en', 'numeric_value', 'student_count')
     search_fields = ('name', 'name_en')
     ordering = ('numeric_value',)
+    
+    def student_count(self, obj):
+        return obj.student_set.count()
+    student_count.short_description = 'Students'
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        # Add validation to ensure numeric_value is unique
+        return form
+    
+    def save_model(self, request, obj, form, change):
+        try:
+            super().save_model(request, obj, form, change)
+        except Exception as e:
+            from django.contrib import messages
+            messages.error(request, f"Error saving class: {str(e)}")
+            raise
+    
+    def delete_model(self, request, obj):
+        # Check if there are students associated with this class
+        student_count = obj.student_set.count()
+        if student_count > 0:
+            from django.contrib import messages
+            messages.warning(request, f"Deleting this class will also delete {student_count} associated students.")
+        try:
+            super().delete_model(request, obj)
+        except Exception as e:
+            from django.contrib import messages
+            messages.error(request, f"Error deleting class: {str(e)}")
+            raise
+    
+    def delete_queryset(self, request, queryset):
+        # Handle bulk delete safely
+        for obj in queryset:
+            self.delete_model(request, obj)
 
 @admin.register(Teacher)
 class TeacherAdmin(CustomModelAdmin):
@@ -78,6 +115,7 @@ class FacultyMemberAdmin(CustomModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(CustomModelAdmin):
+    resource_class = StudentResource
     list_display = ('name', 'roll_number', 'class_name', 'department', 'guardian_name', 'guardian_phone')
     search_fields = ('name', 'roll_number', 'registration_number', 'class_name__name', 'department__name')
     list_filter = ('class_name', 'department')
@@ -281,7 +319,15 @@ class AboutPageAdmin(CustomModelAdmin):
 
 @admin.register(SchoolHistory)
 class SchoolHistoryAdmin(CustomModelAdmin):
-    list_display = ('title', 'is_active', 'order')
+    list_display = ('title', 'has_image')
+    list_filter = ('title',)
+    search_fields = ('title', 'content')
+    fields = ('title', 'content', 'image')
+    
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = 'Has Image'
 
 @admin.register(SchoolBriefInfo)
 class SchoolBriefInfoAdmin(CustomModelAdmin):
